@@ -29,7 +29,7 @@ Planned features
 * Data organisation based on Categories, where one article can belong
   to more than one Category (a.k.a. tag, as on StackOverflow.com)
 * Visitor comments
-* Index by Category; alphabetical index; custom welcom page
+* Index by Category; alphabetical index; custom welcome page
 * Photo spreads (for e.g. screenshot series); index of those
 * Software download area (directory browser with added descriptions)
 * Self-made Ttk (Tile) GUI theme to make the editor feel like Helium
