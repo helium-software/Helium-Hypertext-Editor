@@ -1,4 +1,4 @@
-Helium-Content-Editor
+Helium Content Editor
 =====================
 
 This is the Content Management System for the upcoming Helium website.
