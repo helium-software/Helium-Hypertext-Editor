@@ -38,7 +38,7 @@ Planned features
 
 Development Roadmap
 -------------------
-0. Import/adapt Auto-loading infrastructure from tcl-misc repository
+0. _(Done)_ Import/adapt Auto-loading infrastructure from tcl-misc repository
 1. Tagsheet parser (safe interpreter); method to apply tags
    hierarchically to a text widget
 2. Native Data format parser; highlighting source editor widget
@@ -94,7 +94,8 @@ Geplante Funktionen
 
 Entwicklungs-Fahrplan
 ---------------------
-0. Auto-Load-Infrastruktur vom Repository "tcl-misc" importieren/anpassen
+0. _(Abgeschlossen)_ Auto-Load-Infrastruktur vom Repository "tcl-misc"
+   importieren/anpassen
 1. Parser für Tagsheets (sicherer Interpreter); Methode, um Tags geschachtelt
    auf ein Textwidget anzuwenden
 2. Parser für das native Datenformat; Quelltext-Editor mit Syntax-Hervorhebung
