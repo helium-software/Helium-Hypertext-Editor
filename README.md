@@ -1,6 +1,8 @@
 Helium Content Editor
 =====================
 
+[(springe zur deutschen Version)](#helium-content-editor-deutsch)
+
 This is the Content Management System for the upcoming Helium website.
 Unlike typical projects that coined the "CMS" notion, the Helium
 Content editor is not a web application at all: editing takes place
@@ -21,7 +23,7 @@ Planned features
 * Human-readable native data format that supports custom character
   and paragraph tags, defined by tagfiles
 * Translation of this data format into many target formats, like
-  (X)HTML, TeX, plain text, Markdown etc.   
+  (X)HTML, TeX, plain text, Markdown etc.
 * Configuration of file storage locations; multiple repository
   and presentation locations are possible, local and remote;
   integration of syncing protocols (Rsync, ssh/scp, FTP) and Git
@@ -48,3 +50,60 @@ Development Roadmap
 5. Main Interface and GUI
 6. Repository support, project configuration files
 7. Images and hyperlinks; visitor comments; remaining page types
+
+
+Helium Content Editor (deutsch)
+===============================
+
+Dies ist die Inhaltsverwaltung für den zukünftigen Helium-Webauftritt.
+Anders als typische Projekte, die den Begriff "CMS" prägten, ist
+der Helium Content Editor gar keine Web-Applikation: Die Bearbeitung
+von Inhalten geschieht in einem graphischen Tcl/Tk-Programm, welches
+statische HTML-Seiten (soweit irgend möglich) ausgibt und auf den
+Server hochlädt.
+
+Das Programm soll einige innovative Ideen in seiner Benutzerschnittstelle
+implementieren, die bereits eine Ahnung davon geben sollten, wie das
+eigentliche Helium sich anfühlen wird, und mir etwas Rückmeldungen über
+ihre Brauchbarkeit geben werden (dadurch, dass ich den Content Editor
+regelmäßig benutze).
+
+Geplante Funktionen
+-------------------
+
+* Artikel bearbeiten nach dem WYSIWYM-Konzept (angepasstes Tk-Textwidget),
+  wo sich auch alle Formatierungsdaten verfolgen lassen, statt nur die
+  druckbaren Zeichen (inspiriert von TeXmacs)
+* Textbasiertes natives Datenformat, das die Definition beliebiger
+  Zeichen- und Absatzstile unterstützt, basierend auf _Tagfiles_
+* Übersetzung dieses Formats in verschiedene Zielformate, z.B. (X)HTML,
+  TeX, Reintext, Markdown usw.
+* Konfigurierbare (auch mehrfache) Ablageorte für die Seitendaten und deren
+  Veröffentlichung, lokal und entfernt; Integration von
+  Synchronisationsprotokollen (Rsync, SSH/scp, FTP) und Git (sofern sinnvoll)
+* Organisation der Daten basierend auf Kategorien, wobei ein Artikel zu mehr
+  als einer Kategorie gehören kann (das Konzept ist als "Tags" bekannt, zum
+  Beispiel auf StackOverflow.com)
+* Besucher-Kommentare
+* Index-Seiten: nach Kategorie, alphabetisch; anpassbare Willkommen-Seite
+* Bildstrecken (z.B. Screenshot-Reihen); Index von diesen
+* Software-Downloadbereich (Verzeichnis-Browser mit zusätzlichen
+  Beschreibungen)
+* Selbstgemachtes TTk (Tile)-Thema für die Benutzeroberfläche, damit der
+  Editor wie Helium ausschaut.
+
+Entwicklungs-Fahrplan
+---------------------
+0. Auto-Load-Infrastruktur vom Repository "tcl-misc" importieren/anpassen
+1. Parser für Tagsheets (sicherer Interpreter); Methode, um Tags geschachtelt
+   auf ein Textwidget anzuwenden
+2. Parser für das native Datenformat; Quelltext-Editor mit Syntax-Hervorhebung
+   (hilft zu verifizieren, dass der Parser korrekt arbeitet)
+3. Natives Datenformat in eine Baumstruktur für die WYSIWYM-Ansicht
+   kompilieren, Baumstruktur wieder ins native Datenformat zurück serialisieren
+4. Methoden zur Manipulation von Inhalts-Baumstrukturen und zur Interaktion
+   mit dem Text-Widget (letzter Schritt: Ereignis-Anbindungen, Tastendrücke
+   etc.)
+5. Haupt-Benutzerschnittstelle (GUI)
+6. Betrieb von Ablageorten, Projekt-Konfigurationsdateien
+7. Bilder und Hyperlinks; Besucher-Kommentare; übrige Seitentypen
