@@ -12,7 +12,7 @@ Example
 linetype h1 {
 	size = 20
 	bold = true
-	space-before = 5 ; space-after = 3
+	margin-top = 5 ; margin-bottom = 3
 }
 inlinetag emph {
 	italic = parent.italic xor 1
@@ -36,10 +36,10 @@ Beispiel
 --------
 
 ```
-linetype h1 {
+linetype h1 outside-list {
 	size = 20
 	bold = true
-	space-before = 5 ; space-after = 3
+	margin-top = 5 ; margin-bottom = 3
 }
 inlinetag emph {
 	italic = parent.italic xor 1
@@ -53,3 +53,22 @@ inlinetag bold no-cascade {
 	bold = true
 }
 ```
+
+Aufbau
+------
+
+Ein Tagsheet ist ein Tcl-Skript, dem spezielle Befehle zur Verfügung stehen (und gewisse gefährliche Befehle nicht). Es besteht aus einer Folge von Stil-Definitionen (Befehl `linetype` oder `inlinetag`) und Spezial-Statements (`listindent` etc.), für komplexe Fälle stehen auch Standard-Tcl-Befehle wie `set` oder `lindex` zur Verfügung.
+
+### linetype
+
+Syntax: `linetype <Name> ?outside-list? { Attribut-Defintionen }`
+
+Definiert einen Absatz-Stil <Name> und setzt dessen Darstellungsattribute. Falls das Argument `outside-list` angegeben wird, kann der Absatz-Stil nur auf Einrückungsstufe 0 ("nicht in einer Liste") vorkommen. Dies ist für Überschriften sinnvoll, sollte aber sonst vorsichtig eingesetzt werden.
+
+### inlinetag
+
+Syntax: `inlinetag <Name> ?no-cascade? { Attribut-Definitionen }`
+
+Definiert einen Zeichen-Stil <Name> und setzt dessen Darstellungsattribute. Falls das Argument `no-cascade` angegeben wird, kann der Zeichen-Stil nicht in sich selbst geschachtelt werden (z.B. ist die Auszeichnung "fett" in fettem Text sinnlos).
+
+Wie im Beispiel ersichtlich, kann innerhalb einer Stil-Definition eine Reihe von Attributen gesetzt werden. Es folgt eine Liste der existierenden Attribute.
