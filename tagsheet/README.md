@@ -5,10 +5,24 @@ Tagsheets
 
 The Native Data Format is designed to allow the _use_ of arbitrary paragraph and character styles, specified through their names, e.g. `bold`. (Usage of undefined styles leads to verbatim output of the corresponding markup, because the parser is designed to always succeed.) The _definition_ of those styles is performed in another file, called the **tagsheet**. It lists the available styles, along with instructions on their presentation in the text widget (WYSIWYM mode). A website project typically has a single central tagsheet. The interpretation of the tags during translation into other formats (HTML, TeX etc.) is _not_ part of the tagsheets; it is specified in **template files**, one for each format.
 
+Synopsis
+--------
+
+* [Example](#example)
+* [Structure](#structure)
+   * [inlinetag](#inlinetag)
+   * [linetype](#linetype)
+   * [default](#default)
+   * [listindents](#listindents)
+
 Example
 -------
 
 ```
+default {
+	font = "DejaVu Sans"
+	size = 12
+}
 linetype h1 {
 	size = 20
 	bold = true
@@ -30,13 +44,13 @@ inlinetag bold {
 Structure
 ---------
 
-A tagsheet is a Tcl script that makes use of some specific commands (while being prohibited from using some other, dangerous ones). It consists of a sequence of style definitions (commands _linetype_ or _inlinetag_) and special statements (_listindent_ etc.), and — in complex cases — standard Tcl commands like _set_ or _lindex_.
+A tagsheet is a Tcl script that makes use of some specific commands (while being prohibited from using some other, dangerous ones). It consists of a sequence of style definitions (commands _linetype_, _default, or _inlinetag_) and special statements (_listindent_ etc.), and — in complex cases — standard Tcl commands like _set_ or _lindex_.
 
 ### inlinetag
 
 Syntax: `inlinetag <name> { attribute definitions }`
 
-Defines a character style named _<name>_ and sets up its presentation attributes. Allowed attributes are:
+Defines a character style named _\<name>\_ and sets up its presentation attributes. Allowed attributes are:
 
 | Attribute      | Signification
 | -------------- | -------------
@@ -54,7 +68,7 @@ Defines a character style named _<name>_ and sets up its presentation attributes
 
 Syntax: `linetype <name> { attribute definitions }`
 
-Defines a paragraph style named _<name>_ and sets up its presentation attributes. In addition to those mentioned at _inlinetag_, the following attributes are allowed:
+Defines a paragraph style named _\<name\>_ and sets up its presentation attributes. In addition to those mentioned at _inlinetag_, the following attributes are allowed:
 
 | Attribute          | Signification
 | ------------------ | -------------
@@ -68,11 +82,17 @@ Defines a paragraph style named _<name>_ and sets up its presentation attributes
 | **bullet**         | Bullet character, e.g. `bullet = ‣`, or `bullet = ""` (do not place a bullet character)
 | **bulletdistance** | Space between bullet character and text (first line). Even if a bullet character is present, the attributes _leftmargin_ and _leftmargin1_ refer to the text. The bullet character is placed _bulletdistance_ px left to the start of the text.
 
+### default
+
+Syntax: `default { attribute definitions }`
+
+Defines the style used for plain paragraphs. Additionally, the attributes defined here form a basis for all the paragraph styles, i.e if a paragraph style does not set an attribute, it is inherited from the default style. The set of available attributes is the same as for _linetype_.
+
 ### listindents
 
 Syntax: `listindents +<num> ?+<num> ...? ?...?`
 
-Defines the indentation margins for all types of lists. An arbitrary number of _+<num>_ arguments is allowed. Each argument specifies the distance (in pixels), by which an entry of the related indent level is placed **further to the right** than one of the previous level. (The plus signs emphasize the values being relative ones.) If the text contains entries with an indent level that doesn't correspond to an argument, the last argument is implicitly repeated. (The optional three dots are intended to reflect this behavior to an uninformed reader.)
+Defines the indentation margins for all types of lists. An arbitrary number of _+\<num\>_ arguments is allowed. Each argument specifies the distance (in pixels), by which an entry of the related indent level is placed **further to the right** than one of the previous level. (The plus signs emphasize the values being relative ones.) If the text contains entries with an indent level that doesn't correspond to an argument, the last argument is implicitly repeated. (The optional three dots are intended to reflect this behavior to an uninformed reader.)
 
 Example: `listindents  +10 +10 +10 +4 ...` defines an indentation step of 10 px for the first three levels, and 4 px for the rest. This results in the following absolute indentation margins:
 
@@ -87,10 +107,25 @@ Tagsheets (deutsch)
 
 Das Native Datenformat sieht die _Verwendung_ beliebiger Absatz- und Zeichenstile vor, die durch ihren Namen (z.B. `bold`) spezifiziert werden. (Nicht definierte Stile führen zu einer Ausgabe des betreffenden Markup als Reintext, da der Parser nie einen Fehler zurückgeben soll.) Die _Definition_ der Absatz- und Zeichenstile übernimmt eine weitere Datei, das sogenannte **Tagsheet**. Darin werden die vorhandenen Stile aufgezählt, zusammen mit Anweisungen zu deren Darstellung im Textwidget (WYSIWYM-Modus). Typischerweise hat ein Webseiten-Projekt genau ein zentrales Tagsheet. Die Funktion der Tags bei der Ausgabe in andere Formate (HTML, TeX etc.) ist _nicht_ Bestandteil des Tagsheets, sondern wird für jedes Format in einer **Template-Datei** vermerkt.
 
+Übersicht
+---------
+
+* [Beispiel](#beispiel)
+* [Aufbau](#aufbau)
+   * [inlinetag](#inlinetag-1)
+   * [linetype](#linetype-1)
+   * [default](#default-1)
+   * [listindents](#listindents-1)
+
+
 Beispiel
 --------
 
 ```
+default {
+	font = "DejaVu Sans"
+	size = 12
+}
 linetype h1 {
 	size = 20
 	bold = true
@@ -118,7 +153,7 @@ Ein Tagsheet ist ein Tcl-Skript, dem spezielle Befehle zur Verfügung stehen (un
 
 Syntax: `inlinetag <Name> { Attribut-Definitionen }`
 
-Definiert einen Zeichen-Stil <Name> und setzt dessen Darstellungsattribute. Erlaubte Attribute sind:
+Definiert einen Zeichen-Stil _\<Name\>_ und setzt dessen Darstellungsattribute. Erlaubte Attribute sind:
 
 | Attribut       | Bedeutung
 | -------------- | ---------
@@ -137,7 +172,7 @@ Definiert einen Zeichen-Stil <Name> und setzt dessen Darstellungsattribute. Erla
 
 Syntax: `linetype <Name> { Attribut-Defintionen }`
 
-Definiert einen Absatz-Stil <Name> und setzt dessen Darstellungsattribute. Zusätzlich zu den bei _inlinetag_ erwähnten Attributen sind folgende erlaubt:
+Definiert einen Absatz-Stil _\<Name\>_ und setzt dessen Darstellungsattribute. Zusätzlich zu den bei _inlinetag_ erwähnten Attributen sind folgende erlaubt:
 
 | Attribut           | Bedeutung
 | ------------------ | ---------
@@ -151,11 +186,17 @@ Definiert einen Absatz-Stil <Name> und setzt dessen Darstellungsattribute. Zusä
 | **bullet**         | Aufzählungszeichen, Bsp. `bullet = ‣` oder `bullet = ""` (kein Aufzählungszeichen setzen)
 | **bulletdistance** | Abstand des Aufzählungszeichens vom Text (erste Zeile). Wenn ein Aufzählungszeichen vorhanden ist, gelten die Angaben _leftmargin_ und _leftmargin1_ weiterhin für den Abstand des Textes. Das Aufzählungszeichen wird um _bulletdistance_ px links vom Textbeginn ausgegeben.
 
+### default
+
+Syntax: `default { Attribut-Definitionen }`
+
+Definiert den Stil, den unformatierte Absätze haben. Zusätzlich werden die hier definierten Attribute als Basis für alle Absatzstile genutzt, d.h. wenn ein Absatzstil eine Eigenschaft nicht definiert, wird sie vom Default-Stil übernommen. Die verfügbaren Attribute sind dieselben wie bei _linetype_.
+
 ### listindents
 
 Syntax: `listindents +<num> ?+<num> ...? ?...?`
 
-Definiert die Einrückungsabstände für Aufzählungslisten. Es dürfen beliebig viele Angaben _+<num>_ gemacht werden. Jede Angabe spezifiziert eine Distanz in Pixel, um die Einträge der betreffenden Einrückungsstufe **weiter nach rechts** bezüglich zur vorigen Stufe gesetzt werden sollen. (Die Pluszeichen betonen, dass es sich um relative Angaben handelt.) Falls im Text eine Einrückungsstufe vorkommt, zu der kein Wert gegeben mehr angegeben wurde, wird die letzte Angabe vervielfältigt. (Die freiwilligen drei Punkte sollen dieses Verhalten einem nicht informierten Leser dokumentieren.)
+Definiert die Einrückungsabstände für Aufzählungslisten. Es dürfen beliebig viele Angaben _+\<num\>_ gemacht werden. Jede Angabe spezifiziert eine Distanz in Pixel, um die Einträge der betreffenden Einrückungsstufe **weiter nach rechts** bezüglich zur vorigen Stufe gesetzt werden sollen. (Die Pluszeichen betonen, dass es sich um relative Angaben handelt.) Falls im Text eine Einrückungsstufe vorkommt, zu der kein Wert gegeben mehr angegeben wurde, wird die letzte Angabe vervielfältigt. (Die freiwilligen drei Punkte sollen dieses Verhalten einem nicht informierten Leser dokumentieren.)
 
 Beispiel: `listindents  +10 +10 +10 +4 ...` definiert eine Einrückung von 10 px für die ersten drei Stufen und 4 px für alle weiteren. Es ergeben sich die folgenden absoluten Einrückungsabstände:
 
