@@ -51,6 +51,7 @@ Development Roadmap
 6. Repository support, project configuration files
 7. Images and hyperlinks; visitor comments; remaining page types
 
+-----------------------------------------------------------------------------
 
 Helium Content Editor (deutsch)
 ===============================
