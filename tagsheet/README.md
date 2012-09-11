@@ -14,6 +14,7 @@ Synopsis
    * [linetype](#linetype)
    * [default](#default)
    * [listindents](#listindents)
+* [Expressions](#expressions)
 
 Example
 -------
@@ -100,6 +101,10 @@ Example: `listindents  +10 +10 +10 +4 ...` defines an indentation step of 10 px 
 | ---------------- | ----- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | -------
 | **Left margin**  | **0** | **10** | **20** | **30** | **34** | **38** | **42** | **46** | **...**
 
+
+Expressions (Todo)
+-----------
+
 -----------------------------------------------------------------------------
 
 Tagsheets (deutsch)
@@ -116,6 +121,7 @@ Das Native Datenformat sieht die _Verwendung_ beliebiger Absatz- und Zeichenstil
    * [linetype](#linetype-1)
    * [default](#default-1)
    * [listindents](#listindents-1)
+* [Ausdrücke](#ausdr%C3%BCcke)
 
 
 Beispiel
@@ -203,3 +209,33 @@ Beispiel: `listindents  +10 +10 +10 +4 ...` definiert eine Einrückung von 10 px
 | Einrückungstiefe |   0   |   1    |   2    |   3    |    4   |    5   |    6   |    7   | ...
 | ---------------- | ----- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | -------
 | **Abstand**      | **0** | **10** | **20** | **30** | **34** | **38** | **42** | **46** | **...**
+
+
+Ausdrücke (Brainstorming)
+---------
+
+* In default:
+      Keine Referenzen, ausser auf vorher definierte andere Attribute (z.B. `italic = yes; bold = italic`)
+* In linetype:
+      Default-Referenz für += etc. und toggle ist der Default-Stil.
+      Referenz auf Default-Stil: `aaa = default.bbb`
+      Referenz auf andere Stile: `aaa = myheading.bbb`
+* In inlinetag:
+      Default-Referenz für += etc. und toggle ist der Stil des Vorgängers (beinhaltender inlinetag // linetype // default).
+      Referenz auf Vorgänger: `aaa = parent.bbb`
+      Keine Referenz auf andere inlinetags erlaubt, da diese Vorgänger-relativ sind.
+      Referenz auf linetype: `aaa = myheading.bbb`
+      Referenz auf Default-Stil: `aaa = default.bbb`
+* Allgemein darf nicht auf weiter unten definierte Stile (bzw. Attribute im selben Stil-Block) Bezug genommen werden (sonst könnten Zirkelschlüsse wie `aaa = bbb; bbb = aaa` entstehen). Es ist jedoch -- wie in CSS -- erlaubt, einen Stil nachträglich mit einem Attributblock zu erweitern. Damit sollten verschiedene Design-Aspekte (Bsp. Positionierung und Farbgebung) besser auseinander gehalten werden können.
+
+```
+linetype test {
+	aaa = 12
+}
+linetype other {
+	bbb = test.aaa
+}
+linetype test {
+	bbb = aaa
+}
+```
