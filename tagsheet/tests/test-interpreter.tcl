@@ -35,4 +35,4 @@ feedInterp {three toggle words}
 feedInterp {bold toggle}
 feedInterp {size ++ ; margin --;}
 feedInterp {font = "Some cool font"}
-feedInterp {size += 45}
+feedInterp {size += 45; margin /= 3 + 4}

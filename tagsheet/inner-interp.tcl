@@ -59,7 +59,7 @@ iproc attr_incr {attr plusminus} {
 iproc attr_setop {attr op expr} {
 	set op [string index $op 0]  ;# discard trailing '=' sign
 	if {"inlinetag" == "inlinetag"} {
-		attr_set $attr [list parent.$attr $op $expr]
+		attr_set $attr [list parent.$attr $op ( {*}$expr )]
 	} else {
 		error "+= -= *= and /= are only allowed in inlinetag definitions"
 	}
