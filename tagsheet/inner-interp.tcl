@@ -31,6 +31,7 @@ iproc unknown {args} {
 	# other cases with any number of words are syntax errors
 	attr_error
 }
+
 ## Inner procedures used for interpreting attribute assignments. Tagsheets may contain
 ## calls to them that will succeed - it is bad behaviour but not dangerous at all.
 
@@ -44,28 +45,26 @@ iproc attr_toggle {attr} {
 	if {[attr_gettype $attr]!="Flag"} {
 		error "toggle is only allowed for Flag attributes"
 	}
-	switch $::MODE {
-		default   { error "can't use toggle in a \"default\" definition" } 
-		linetype  { set ref default }
-		inlinetag { set ref parent }
+	if {$::MODE != "inlinetag"} {
+		error "toggle is only allowed in inlinetag definitions"
 	}
-	attr_set $attr [list $ref.$attr ^ 1]
+	attr_set $attr [list parent.$attr ^ 1]
 }
 # implement "attr += expr" and -=, *=, /=
 iproc attr_setop {attr op expr} {
-	set op [string index $op 0]  ;# discard trailing '=' sign
-	if {$::MODE == "inlinetag"} {
-		if {[attr_gettype $attr]!="Number"} {
-			error "$op= is only allowed for Number attributes"
-		}
-		attr_set $attr [list parent.$attr $op ( {*}$expr )]
-	} else {
-		error "+= -= *= and /= are only allowed in inlinetag definitions"
+	if {[attr_gettype $attr]!="Number"} {
+		error "$op is only allowed for Number attributes"
 	}
+	if {$::MODE != "inlinetag"} {
+		error "$op is only allowed in inlinetag definitions"
+	}
+	
+	set op [string index $op 0]  ;# discard trailing '=' sign
+	attr_set $attr [list parent.$attr $op ( {*}$expr )]
 }
-# implement "attr = expr"
+# implement "attr = expr" (all cases like "toggle" and "+=" call this)
 iproc attr_set {attr expr} {
-	puts "attr_set $attr <TO> $expr"
+	puts "attr_set $attr ←← $expr"
 }
 
 # get type of an attribute
@@ -74,14 +73,16 @@ iproc attr_gettype {attr} {
 		font - color  - background             {return String}
 		size - offset                          {return Number}
 		bold - italic - underline - overstrike {return Flag}
-	}
-	if {$::MODE == "inlinetag"} {error "attribute \"$attr\" not allowed in inlinetag"}
-	switch $attr {
+
 		leftmargin - leftmargin1 - rightmargin - topskip - bottomskip - lineskip -
 		bulletdistance
-			{return Number}
+		 { if {$::MODE != "inlinetag"} {return Number} else {
+			error "attribute \"$attr\" is not allowed in inlinetag definitions"
+		 } }
 		align - bullet
-			{return String}
+		 { if {$::MODE != "inlinetag"} {return String} else {
+			error "attribute \"$attr\" is not allowed in inlinetag definitions"
+		 } }
 	}
 	error "unknown attribute \"$attr\""
 }
@@ -95,3 +96,4 @@ iproc attr_isinlineattr {attr} {
 	return [expr {$attr in [list font color background sizeoffset bold italic underline \
 		overstrike]}]
 }
+

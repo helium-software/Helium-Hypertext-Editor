@@ -32,7 +32,14 @@ proc feedInterp {script {interp ::tagsheet::inner-interp}} {
 feedInterp {Hello Interpreter; say something}
 feedInterp {singleword}
 feedInterp {three toggle words}
+puts ""
+feedInterp {set MODE inlinetag}
 feedInterp {bold toggle}
-feedInterp {size ++ ; margin --;}
 feedInterp {font = "Some cool font"}
-feedInterp {size += 45; margin /= 3 + 4}
+feedInterp {size += 45; offset /= 3 + 4; leftmargin /= 3}
+feedInterp {blubb *= "Blubb"}
+puts ""
+feedInterp {set MODE linetype}
+feedInterp {bold toggle}
+feedInterp {size += 45; offset /= 3 + 4; leftmargin /= 3}
+
