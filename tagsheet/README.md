@@ -24,20 +24,20 @@ default {
 	font = "DejaVu Sans"
 	size = 12
 }
-linetype h1 {
+linetype h1 "Heading 1" {
 	size = 20
 	bold = true
 	topskip = 5 ; bottomskip = 3
 }
-inlinetag emph {
+inlinetag emph "Emphasize" {
 	italic = parent.italic xor 1
 	italic toggle  ;#alternative form
 }
-inlinetag big {
+inlinetag big "Bigger" {
 	size = parent.size + 4
 	size += 4      ;#alternative form
 }
-inlinetag bold {
+inlinetag bold "Bold print" {
 	bold = true
 }
 ```
@@ -49,9 +49,9 @@ A tagsheet is a Tcl script that makes use of some specific commands (while being
 
 ### inlinetag
 
-Syntax: `inlinetag <name> { attribute definitions }`
+Syntax: `inlinetag <name> <displayed name> { attribute definitions }`
 
-Defines a character style named _\<name>\_ and sets up its presentation attributes. Allowed attributes are:
+Defines a character style named _\<name\>_ (in source code) resp. _\<displayed name_\> (in the WYSIWYM interface) and sets up its presentation attributes. Allowed attributes are:
 
 | Attribute      | Signification
 | -------------- | -------------
@@ -67,9 +67,9 @@ Defines a character style named _\<name>\_ and sets up its presentation attribut
 
 ### linetype
 
-Syntax: `linetype <name> { attribute definitions }`
+Syntax: `linetype <name> <displayed name> { attribute definitions }`
 
-Defines a paragraph style named _\<name\>_ and sets up its presentation attributes. In addition to those mentioned at _inlinetag_, the following attributes are allowed:
+Defines a paragraph style named _\<name\>_ (in source code) resp. _\<displayed name\>_ (in the WYSIWYM interface) and sets up its presentation attributes. In addition to those mentioned at _inlinetag_, the following attributes are allowed:
 
 | Attribute          | Signification
 | ------------------ | -------------
@@ -132,20 +132,20 @@ default {
 	font = "DejaVu Sans"
 	size = 12
 }
-linetype h1 {
+linetype h1 "Überschrift 1" {
 	size = 20
 	bold = true
 	topskip = 5 ; bottomskip = 3
 }
-inlinetag emph {
+inlinetag emph "Betont" {
 	italic = parent.italic xor 1
 	italic toggle  ;#alternative Form
 }
-inlinetag big {
+inlinetag big "Größer" {
 	size = parent.size + 4
 	size += 4      ;#alternative Form
 }
-inlinetag bold {
+inlinetag bold "Fettdruck" {
 	bold = true
 }
 ```
@@ -157,9 +157,9 @@ Ein Tagsheet ist ein Tcl-Skript, dem spezielle Befehle zur Verfügung stehen (un
 
 ### inlinetag
 
-Syntax: `inlinetag <Name> { Attribut-Definitionen }`
+Syntax: `inlinetag <Name> <Angezeigter Name> { Attribut-Definitionen }`
 
-Definiert einen Zeichen-Stil _\<Name\>_ und setzt dessen Darstellungsattribute. Erlaubte Attribute sind:
+Definiert einen Zeichen-Stil _\<Name\>_ (im Quelltext) resp. _\<Angezeigter Name\>_ (im WYSIWYM-Editor) und setzt dessen Darstellungsattribute. Erlaubte Attribute sind:
 
 | Attribut       | Bedeutung
 | -------------- | ---------
@@ -176,9 +176,9 @@ Definiert einen Zeichen-Stil _\<Name\>_ und setzt dessen Darstellungsattribute. 
 
 ### linetype
 
-Syntax: `linetype <Name> { Attribut-Defintionen }`
+Syntax: `linetype <Name> <Angezeigter Name> { Attribut-Defintionen }`
 
-Definiert einen Absatz-Stil _\<Name\>_ und setzt dessen Darstellungsattribute. Zusätzlich zu den bei _inlinetag_ erwähnten Attributen sind folgende erlaubt:
+Definiert einen Absatz-Stil _\<Name\>_ (im Quelltext) resp. _\<Angezeigter Name\>_ (im WYSIWYM-Editor) und setzt dessen Darstellungsattribute. Zusätzlich zu den bei _inlinetag_ erwähnten Attributen sind folgende erlaubt:
 
 | Attribut           | Bedeutung
 | ------------------ | ---------
