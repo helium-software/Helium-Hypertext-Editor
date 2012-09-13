@@ -5,7 +5,7 @@
 ## that will all be caught by the following unknown handler:
 
 iproc unknown {args} {
-	# minimum argument count is 2, for "attr toggle" and "attr ++" etc.
+	# minimum argument count is 2, for "attr toggle"
 	set arglen [llength $args]
 	if {$arglen < 2} {
 		attr_error
@@ -15,14 +15,6 @@ iproc unknown {args} {
 	# match against "attr toggle"
 	if {$arglen == 2 && $arg2 == "toggle"} {
 		attr_toggle $arg1 ; return
-	}
-	# match against "attr ++"
-	if {$arglen == 2 && $arg2 == "++"} {
-		attr_incr $arg1 + ; return
-	}
-	# match against "attr --"
-	if {$arglen == 2 && $arg2 == "--"} {
-		attr_incr $arg1 - ; return
 	}
 	# other cases with two words are syntax errors
 	if {$arglen == 2} {
@@ -44,21 +36,28 @@ iproc unknown {args} {
 
 # report syntax error
 iproc attr_error {} {
-	error [join [list "bad attribute assignment: must be attr = expr |" \
-	                  "attr += -= *= /= expr | attr ++ | attr -- | attr toggle"]]
+	error [join [list "bad attribute assignment: must be attr = expr | attr += expr |" \
+	                  "attr -= expr | attr *= expr | attr /= expr | attr toggle"]]
 }
 # implement "attr toggle"
 iproc attr_toggle {attr} {
-	puts "attr_toggle $attr"
-}
-# implement "attr ++" and "attr --"
-iproc attr_incr {attr plusminus} {
-	puts "attr_incr $attr $plusminus"
+	if {[attr_gettype $attr]!="Flag"} {
+		error "toggle is only allowed for Flag attributes"
+	}
+	switch $::MODE {
+		default   { error "can't use toggle in a \"default\" definition" } 
+		linetype  { set ref default }
+		inlinetag { set ref parent }
+	}
+	attr_set $attr [list $ref.$attr ^ 1]
 }
 # implement "attr += expr" and -=, *=, /=
 iproc attr_setop {attr op expr} {
 	set op [string index $op 0]  ;# discard trailing '=' sign
-	if {"inlinetag" == "inlinetag"} {
+	if {$::MODE == "inlinetag"} {
+		if {[attr_gettype $attr]!="Number"} {
+			error "$op= is only allowed for Number attributes"
+		}
 		attr_set $attr [list parent.$attr $op ( {*}$expr )]
 	} else {
 		error "+= -= *= and /= are only allowed in inlinetag definitions"
@@ -67,4 +66,32 @@ iproc attr_setop {attr op expr} {
 # implement "attr = expr"
 iproc attr_set {attr expr} {
 	puts "attr_set $attr <TO> $expr"
+}
+
+# get type of an attribute
+iproc attr_gettype {attr} {
+	switch $attr {
+		font - color  - background             {return String}
+		size - offset                          {return Number}
+		bold - italic - underline - overstrike {return Flag}
+	}
+	if {$::MODE == "inlinetag"} {error "attribute \"$attr\" not allowed in inlinetag"}
+	switch $attr {
+		leftmargin - leftmargin1 - rightmargin - topskip - bottomskip - lineskip -
+		bulletdistance
+			{return Number}
+		align - bullet
+			{return String}
+	}
+	error "unknown attribute \"$attr\""
+}
+# check if a string is an attribute
+iproc attr_isattr {attr} {
+	return [expr {$attr in [list font color background size offset bold italic underline \
+		overstrike leftmargin leftmargin1 rightmargin topskip bottomskip lineskip \
+		bulletdistance align bullet]}]
+}
+iproc attr_isinlineattr {attr} {
+	return [expr {$attr in [list font color background sizeoffset bold italic underline \
+		overstrike]}]
 }
