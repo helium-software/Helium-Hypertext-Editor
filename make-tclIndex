@@ -25,6 +25,9 @@ while {$i<[llength $tobevisited]} {
   set dir [lindex $tobevisited $i]
   if {$verbose} {puts "Found $dir"}
   incr i
+  # skip directories named "tests" (extendible)
+  if {[file tail $dir] in [list "tests"]}  continue
+
   lappend dirs $dir/*.tcl  ;# add glob pattern in the same step
   lappend tobevisited {*}[glob -directory $dir -type d -nocomplain *]
 }
