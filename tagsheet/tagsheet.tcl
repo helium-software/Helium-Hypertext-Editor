@@ -43,10 +43,11 @@ proc ::tagsheet::init {} {
 		[file join $::tagsheet::priv::scriptdir inner-interp.tcl]
 	
 	## Ability for the outer interpreter to evaluate code in the inner one:
-	proc ::tagsheet::priv::inner-eval {script} {
-		::tagsheet::inner-interp eval $script
-	}
-	::tagsheet::outer-interp alias  inner-eval  ::tagsheet::priv::inner-eval
+	interp alias  ::tagsheet::outer-interp inner-eval      ::tagsheet::inner-interp eval
+	## link attr_set from inner to outer interpreter:
+	interp alias  ::tagsheet::inner-interp outer-attr_set  ::tagsheet::outer-interp attr_set
+	## link attr_gettype from outer to inner interpreter:
+	interp alias ::tagsheet::outer-interp attr_gettype  ::tagsheet::inner-interp attr_gettype
 }
 ::tagsheet::init
 

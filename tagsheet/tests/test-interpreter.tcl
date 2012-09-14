@@ -33,13 +33,27 @@ feedInterp {Hello Interpreter; say something}
 feedInterp {singleword}
 feedInterp {three toggle words}
 puts ""
+tagsheet::outer-interp eval {
+	reset; set ::context inlinetag; set ::name example; dict set ::inlinetags example [dict create]}
 feedInterp {set MODE inlinetag}
 feedInterp {bold toggle}
+catch {tagsheet::inner-interp eval {bold toggle}} result extoptions
+puts [join $extoptions]
 feedInterp {font = "Some cool font"}
 feedInterp {size += 45; offset /= 3 + 4; leftmargin /= 3}
+feedInterp {offset = offset + 2}
 feedInterp {blubb *= "Blubb"}
 puts ""
+tagsheet::outer-interp eval {set ::context linetype}
 feedInterp {set MODE linetype}
 feedInterp {bold toggle}
 feedInterp {size += 45; offset /= 3 + 4; leftmargin /= 3}
 
+##
+puts "\n Test the outer interpreter \n"
+feedInterp {
+inlinetag test "Test tag" {
+	bold toggle
+	italic = yes
+	size += 5
+}} tagsheet::outer-interp

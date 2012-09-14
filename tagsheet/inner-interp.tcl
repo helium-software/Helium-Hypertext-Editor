@@ -64,7 +64,7 @@ iproc attr_setop {attr op expr} {
 }
 # implement "attr = expr" (all cases like "toggle" and "+=" call this)
 iproc attr_set {attr expr} {
-	puts "attr_set $attr ←← $expr"
+	outer-attr_set $attr $expr
 }
 
 # get type of an attribute
@@ -87,13 +87,14 @@ iproc attr_gettype {attr} {
 	error "unknown attribute \"$attr\""
 }
 # check if a string is an attribute
+# the following two procedures are identical to those in outer-interp.tcl (without attr_ prefix)
 iproc attr_isattr {attr} {
 	return [expr {$attr in [list font color background size offset bold italic underline \
 		overstrike leftmargin leftmargin1 rightmargin topskip bottomskip lineskip \
 		bulletdistance align bullet]}]
 }
 iproc attr_isinlineattr {attr} {
-	return [expr {$attr in [list font color background sizeoffset bold italic underline \
+	return [expr {$attr in [list font color background size offset bold italic underline \
 		overstrike]}]
 }
 
