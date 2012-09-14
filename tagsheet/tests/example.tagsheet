@@ -1,0 +1,7 @@
+inlinetag bold "Bold" {
+	bold toggle
+}
+linetype h1 "Heading 1" {
+	size = 1.4 * default.size
+	bold = on
+}

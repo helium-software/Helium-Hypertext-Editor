@@ -60,7 +60,7 @@ iproc attr_setop {attr op expr} {
 	}
 	
 	set op [string index $op 0]  ;# discard trailing '=' sign
-	attr_set $attr [list parent.$attr $op ( {*}$expr )]
+	attr_set $attr "parent.$attr $op ($expr)"
 }
 # implement "attr = expr" (all cases like "toggle" and "+=" call this)
 iproc attr_set {attr expr} {

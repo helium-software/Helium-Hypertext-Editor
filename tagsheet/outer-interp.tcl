@@ -30,6 +30,9 @@ iproc reset {} {
 		leftmargin 0  leftmargin1 0  rightmargin 0  align left  \
 		topskip 0  bottomskip 0  lineskip 0                     \
 		bulletdistance 0  bullet ""                             ]
+	dict for {attr value} $::default_attrs {
+		dict set ::dotattributes default.$attr $value
+	}
 	set ::linetypes [dict create]
 	set ::inlinetags [dict create]
 	set ::linetype_displaynames [dict create]
@@ -112,6 +115,8 @@ iproc attr_set {attr expr} {
 		} else {
 			set size 12; set offset 0
 			if {[catch {expr $expr}]} {error "invalid expression syntax"}
+			# put expr in brackets for correct calculations in e.g. "aaa += 55; bbb = aaa * x"
+			set expr "($expr)"
 		}
 	} Flag {
 		# translate logical constants and operators to "C" style
@@ -125,6 +130,8 @@ iproc attr_set {attr expr} {
 		} else {
 			set bold 0; set italic 0; set underline 0; set overstrike 0
 			if {[catch {expr $expr}]} {error "invalid expression syntax"}
+			# put expr in brackets for correct calculations in e.g. "aaa toggle; bbb = aaa & x"
+			set expr "($expr)"
 		}
 	}}
 	## store the resulting attribute ($expr) in the appropriate place

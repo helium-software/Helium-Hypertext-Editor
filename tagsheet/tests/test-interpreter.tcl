@@ -56,4 +56,5 @@ inlinetag test "Test tag" {
 	bold toggle
 	italic = yes
 	size += 5
+	size = size-6
 }} tagsheet::outer-interp
