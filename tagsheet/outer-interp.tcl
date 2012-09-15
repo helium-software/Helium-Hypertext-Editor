@@ -103,6 +103,34 @@ iproc attr_set {attr expr} {
 		#  "parent.attr" is replaced with something that still contains "attr")
 		set expr [string map [dict merge $::parent_refs [dict get $::inlinetags $::name]] $expr]
 	}}
+	## handle "if" clause
+	set if_pos [string first " if " $expr]
+	if {$if_pos != -1} {
+		set cond [string range $expr $if_pos+4  end]
+		set expr [string range $expr 0    $if_pos-1]
+		# translate logical constants and operators to "C" style
+		# (expr does not provide calculations with yes and friends)
+		set cond [string map {" xor " ^ " and " & " or " | "not " !
+			yes 1 no 0 on 1 off 0 true 1 false 0} $cond]
+		# if we can (no parent references), calculate $cond and abort if it isn't true
+		if {[string first {$} $cond] == -1} {
+			set cond [expr $cond]
+			if {!$cond} {return}
+		# otherwise run a test against sample default values:
+		} else {
+			set size 12; set offset 0
+			set bold 0; set italic 0; set underline 0; set overstrike 0
+			set font "Sans"; set color "#abcdef"; set background "#012345"
+			if {[catch {expr $expr}]} {
+				error "invalid expression syntax in \"if\" condition"
+			}
+		# and include $cond into $expr:
+		# (we can't abort setting the attribute inside our expression, so
+		#  if the condition is false, take the parent attribute)
+			set expr "(($cond) ? ($expr) : \$attr)"
+		}
+	}
+	
 	## calculate the resulting attribute, depending on its type
 	switch $type {
 	String {

@@ -48,6 +48,8 @@ proc ::tagsheet::init {} {
 	interp alias  ::tagsheet::inner-interp outer-attr_set  ::tagsheet::outer-interp attr_set
 	## link attr_gettype from outer to inner interpreter:
 	interp alias ::tagsheet::outer-interp attr_gettype  ::tagsheet::inner-interp attr_gettype
+	# make cond() known to the outer interpreter
+	interp alias  ::tagsheet::outer-interp  ::tcl::mathfunc::cond  ::tcl::mathfunc::cond
 }
 ::tagsheet::init
 
