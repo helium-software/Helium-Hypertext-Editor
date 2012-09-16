@@ -11,7 +11,11 @@
 # Namespace creation follows
 
 namespace eval ::tagsheet {}
+namespace eval ::tcl::mathfunc {}
 
 # Index of procedures follows
 
+set auto_index(::tagsheet::evalsinglefile) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::init) [list source [file join $dir . tagsheet tagsheet.tcl]]
+set auto_index(::tagsheet::evalfile) [list source [file join $dir . tagsheet tagsheet.tcl]]
+set auto_index(::tcl::mathfunc::cond) [list source [file join $dir . math cond.tcl]]

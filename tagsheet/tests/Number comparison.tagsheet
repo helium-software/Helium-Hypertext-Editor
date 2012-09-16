@@ -1,0 +1,12 @@
+linetype test1 "Test 1" {
+	size = 10
+}
+linetype iffalse "If false" {
+	size = 42 if test1.size = 12
+}
+linetype iftrue "If true" {
+	size = 52 if test1.size = 10
+}
+linetype cond "Conditional" {
+	size = cond(test1.size==12,42, test1.size==10,52)
+}

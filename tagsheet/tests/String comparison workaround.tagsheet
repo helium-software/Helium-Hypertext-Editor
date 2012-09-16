@@ -1,0 +1,9 @@
+linetype test1 "Test 1" {
+	font = "Sans"
+}
+linetype iffalse "If false" {
+	font = "Fancy Sans" if {"test1.font"} == {"Test"}
+}
+linetype iftrue "If true" {
+	font = "This Sans" if {"test1.font"} == {"Sans"}
+}
