@@ -1,10 +1,20 @@
 namespace eval ::tagsheet {}
 namespace eval ::tagsheet::priv {}
 
+## Procedure used for normal cases, where tag definitions are made in a single
+## tagsheet file. (For more complex cases, call init and evalfile manually.)
+
+proc ::tagsheet::evalsinglefile {filename} {
+	::tagsheet::init
+	::tagsheet::evalfile $filename
+	::tagsheet::round-values
+	return [::tagsheet::getresults]
+}
+
 set ::tagsheet::priv::scriptdir [file dirname [info script]]
 
 proc ::tagsheet::init {} {
-	## Creates the interpreters that will parse our tagsheets. The _outer_ interpreter
+	## (Re-)Creates the interpreters that will parse our tagsheets. The _outer_ interpreter
 	## is going to [eval] the whole tagsheet, giving the attribute-definition parts of
 	## [inlinetag], [linetype] and [default] statements to the _inner_ interpreter.
 	catch {interp delete ::tagsheet::outer-interp}
@@ -49,7 +59,34 @@ proc ::tagsheet::init {} {
 	## link attr_gettype from outer to inner interpreter:
 	interp alias ::tagsheet::outer-interp attr_gettype  ::tagsheet::inner-interp attr_gettype
 	# make cond() known to the outer interpreter
-	interp alias  ::tagsheet::outer-interp  ::tcl::mathfunc::cond  ::tcl::mathfunc::cond
+	::tagsheet::outer-interp alias  ::tcl::mathfunc::cond  ::tcl::mathfunc::cond
 }
-::tagsheet::init
 
+proc ::tagsheet::unchecked_evalfile {filename} {
+	::tagsheet::outer-interp invokehidden $filename
+}
+
+## Rounds all Number attributes inside 'outer-interp' to integers
+proc ::tagsheet::round-values {} {
+	::tagsheet::outer-interp eval {
+		foreach dictionary {::defaults ::linetypes ::inlinetags} {
+			dict for {key value} [set $dictionary] {
+				if {$key in {size offset leftmargin leftmargin1 rightmargin \
+				 topskip bottomskip lineskip bulletdistance}} {
+					if {[string first {$} $value]==-1} {
+						dict set $dictionary $key [expr {round($value)}]
+					} else {
+						dict set $dictionary $key "round($value)"
+					}
+	}	}	}	}
+}
+
+## Read tag definitions out of the tagsheet interpreter
+proc ::tagsheet::getresults {} {
+	::tagsheet::outer-interp eval {
+		dict create \
+			defaults $::defaults \
+			linetype_names $::linetype_names    linetypes $::linetypes \
+			inlinetag_names $::inlinetag_names  inlinetags $::inlinetags
+	}
+}

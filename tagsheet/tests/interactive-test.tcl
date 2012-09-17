@@ -90,7 +90,7 @@ bind . <Control-KeyRelease-r> {.refresh state !pressed; .refresh invoke}
 .refresh configure -command {
 	::tagsheet::outer-interp eval reset
 	::tagsheet::outer-interp eval [.tagsheet.text get 1.0 end]
-	foreach globalvar {default_attrs linetypes inlinetags linetype_displaynames inlinetag_displaynames} {
+	foreach globalvar {defaults linetypes inlinetags linetype_names inlinetag_names} {
 		set ::$globalvar [::tagsheet::outer-interp eval "set ::$globalvar"]
 	}
 	.output.text.render
@@ -113,7 +113,7 @@ proc .output.text.render {} {
 
 proc .output.text.render.dicts {} {
 	.output.text delete 1.0 end
-	dict_dump ::linetype_displaynames 1 ::linetypes 2 ::inlinetag_displaynames 1 ::inlinetags 2 ::default_attrs 1
+	dict_dump ::linetype_names 1 ::linetypes 2 ::inlinetag_names 1 ::inlinetags 2 ::defaults 1
 }
 proc dict_dump {args} {
 	foreach {dict maxlevel} $args {
@@ -145,16 +145,16 @@ proc .output.text.render.semantic {} {
 	.output.text delete 1.0 end
 	.output.text insert end "inlinetag styles:\n" title
 	dict for {name attrs} $::inlinetags {
-		set displayname [dict get $::inlinetag_displaynames $name]
+		set displayname [dict get $::inlinetag_names $name]
 		print_style $name $displayname $attrs
 	}
 	.output.text insert end "linetype styles:\n" title
 	dict for {name attrs} $::linetypes {
-		set displayname [dict get $::linetype_displaynames $name]
+		set displayname [dict get $::linetype_names $name]
 		print_style $name $displayname $attrs
 	}
 	.output.text insert end "Default style:\n" title
-	print_attrs $::default_attrs
+	print_attrs $::defaults
 }
 .output.text configure -font "Monospace -9"
 .output.text tag configure title -font "Sans -11 bold"

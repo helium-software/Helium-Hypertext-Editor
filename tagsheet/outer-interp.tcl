@@ -7,15 +7,15 @@
 #   ::dotattributes  dict with mapping linetype.attr -> value
 #                     used to resolve "linetype.attr" references in attr_set [using string map]
 #
-#   ::default_attrs  dict with mapping attr -> value, contains definitions made in
+#   ::defaults       dict with mapping attr -> value, contains definitions made in
 #                     "default" statement(s)
 #   ::linetypes      dict with mapping name -> [dict with mapping attr -> value], 
 #                     contains definitions made in "linetype" statements
 #   ::inlinetags     dict with mapping name -> [dict with mapping attr -> value_expr],
 #                     contains definitions made in "inlinetag" statements
 #
-#   ::linetype_displaynames   dict with mapping name -> displayname, for linetype styles only
-#   ::inlinetag_displaynames  dict with mapping name -> displayname, for inlinetag styles only
+#   ::linetype_names   dict with mapping name -> displayname, for linetype styles only
+#   ::inlinetag_names  dict with mapping name -> displayname, for inlinetag styles only
 #
 #   ::parent_refs    dict with mapping "parent.name" -> "$name" for inlinetags
 foreach inline_attr {font color background size offset bold italic underline overstrike} {
@@ -24,19 +24,19 @@ foreach inline_attr {font color background size offset bold italic underline ove
 
 iproc reset {} {
 	set ::dotattributes [dict create]
-	set ::default_attrs [dict create \
+	set ::defaults [dict create \
 		font "Sans"  color black  background white  size 13     \
 		bold 0  italic 0  offset 0  underline 0  overstrike 0   \
 		leftmargin 0  leftmargin1 0  rightmargin 0  align left  \
 		topskip 0  bottomskip 0  lineskip 0                     \
 		bulletdistance 0  bullet ""                             ]
-	dict for {attr value} $::default_attrs {
+	dict for {attr value} $::defaults {
 		dict set ::dotattributes default.$attr $value
 	}
 	set ::linetypes [dict create]
 	set ::inlinetags [dict create]
-	set ::linetype_displaynames [dict create]
-	set ::inlinetag_displaynames [dict create]
+	set ::linetype_names [dict create]
+	set ::inlinetag_names [dict create]
 }
 
 ## Implementation of tagsheet user commands
@@ -51,7 +51,7 @@ iproc default {attribdefs} {
 iproc linetype {name displayname attribdefs} {
 	set ::context linetype
 	set ::name $name
-	dict set ::linetype_displaynames $name $displayname
+	dict set ::linetype_names $name $displayname
 	if {![dict exists $::linetypes $name]} {dict set ::linetypes $name [dict create]}
 
 	inner-eval {set ::MODE linetype}
@@ -60,7 +60,7 @@ iproc linetype {name displayname attribdefs} {
 iproc inlinetag {name displayname attribdefs} {
 	set ::context inlinetag
 	set ::name $name
-	dict set ::inlinetag_displaynames $name $displayname
+	dict set ::inlinetag_names $name $displayname
 	if {![dict exists $::inlinetags $name]} {dict set ::inlinetags $name [dict create]}
 
 	inner-eval {set ::MODE inlinetag}
@@ -90,7 +90,7 @@ iproc attr_set {attr expr} {
 	switch $::context {
 	"default" {
 		# substitute "attr"
-		set expr [string map $::default_attrs $expr]
+		set expr [string map $::defaults $expr]
 	} "linetype" {
 		# substitute "linetype.attr"
 		set expr [string map $::dotattributes $expr]
@@ -169,7 +169,7 @@ iproc attr_set {attr expr} {
 	## store the resulting attribute ($expr) in the appropriate place
 	switch $::context {
 	"default" {
-		dict set ::default_attrs $attr $expr
+		dict set ::defaults $attr $expr
 		dict set ::dotattributes default.$attr $expr
 	} "linetype" {
 		dict set ::linetypes $::name $attr $expr
