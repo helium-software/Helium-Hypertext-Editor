@@ -21,9 +21,9 @@ bind TextSelMechanism <<Selection>> {::tk_text::selectionChange %W}
 # using the mouse: at every <Motion> event, two <<Selection>> events are
 # issued; the first clears the selection, and the second creates the new selection
 # — which is almost always identical to the one before it has been cleared.
-# We store the last non-empty selection in a variable, and call selectionUpdate
-# only when a new non-empty selection has been created, and when the selection
-# is still empty after going into the idle loop.
+# We store the last non-empty selection in a variable, and fire a 
+# <<SelectionSettle>> event only when a new non-empty selection has been
+# created, and when the selection is still empty after going into the idle loop.
 
 set ::tk_text::lastselection [dict create]
 proc ::tk_text::selectionChange {window} {
@@ -38,7 +38,7 @@ proc ::tk_text::selectionChange {window} {
 	} else {
 		if {$cur_selection != [dict get $::tk_text::lastselection $window]} {
 			dict set ::tk_text::lastselection $window $cur_selection
-			::tk_text::selectionUpdate $window
+			event generate $window <<SelectionSettle>>
 		}
 	}
 }
@@ -48,15 +48,17 @@ proc ::tk_text::selectionTest {window} {
 	set cur_selection [$window tag ranges sel]
 	if {$cur_selection == [dict get $::tk_text::lastselection $window]} return
 	dict set ::tk_text::lastselection $window $cur_selection
-	::tk_text::selectionUpdate $window
+	event generate $window <<SelectionSettle>>
 }
+
+bind TextSelMechanism <<SelectionSettle>> {::tk_text::selectionUpdateTags %W}
 
 # This procedure does the actual work, creating the 'mytag#sel' ranges, while
 # the other ones only make sure that it is called as seldom as possible.
-proc ::tk_text::selectionUpdate {window} {
+proc ::tk_text::selectionUpdateTags {window} {
 	puts "selection change @ $window: [$window tag ranges sel]"
 	$window configure -background "#[format %06x [expr int(rand() * 2**24)]]"
 }
 
-pack [text .t]
+pack [text .t -font "Monospace -16"]
 bindtags .t [concat [bindtags .t] TextSelMechanism]
