@@ -14,6 +14,7 @@ namespace eval ::tcl::mathfunc {}
 namespace eval ::tagsheet {}
 namespace eval ::ttk_fixes {}
 namespace eval ::tagsheet::gui {}
+namespace eval ::tk_text {}
 
 # Index of procedures follows
 
@@ -31,6 +32,10 @@ set auto_index(get) [list source [file join $dir . tcl-custom getandset.tcl]]
 set auto_index(set_ifnotexists) [list source [file join $dir . tcl-custom getandset.tcl]]
 set auto_index(lremove) [list source [file join $dir . tcl-custom listop.tcl]]
 set auto_index(lremoveitem) [list source [file join $dir . tcl-custom listop.tcl]]
+set auto_index(::tk_text::selectionChange) [list source [file join $dir . toolkit text-selection.tcl]]
+set auto_index(::tk_text::selectionTest) [list source [file join $dir . toolkit text-selection.tcl]]
+set auto_index(::tk_text::selectionUpdateTags) [list source [file join $dir . toolkit text-selection.tcl]]
+set auto_index(::tk_text::makeseltag) [list source [file join $dir . toolkit text-selection.tcl]]
 set auto_index(bindtag_add) [list source [file join $dir . toolkit bindtags.tcl]]
 set auto_index(ttk_toplevel) [list source [file join $dir . toolkit ttk_fixes ttk_toplevel.tcl]]
 set auto_index(::ttk_fixes::toplevel.clam) [list source [file join $dir . toolkit ttk_fixes ttk_toplevel.tcl]]
