@@ -102,8 +102,52 @@ Example: `listindents  +10 +10 +10 +4 ...` defines an indentation step of 10 px 
 | **Left margin**  | **0** | **10** | **20** | **30** | **34** | **38** | **42** | **46** | **...**
 
 
-Expressions (Todo)
+Expressions
 -----------
+
+This section describes the syntax of the _{ attribute definitions }_ field that has been mentioned in the previous sections. 
+
+Between the curly braces (see the [Example](#example)), an arbitrary number of attribute definitions can be specified, either each on an individual line, or multiple definitions on one line, separated by semicolons. (Internally, the _{ attribute definitions }_ field is a "Tcl script" argument that is executed inside the commands like _linetype_ etc. It is exactly the same as e.g. the body of an _if_ condition, except that the attribute definitions are available as custom Tcl commands inside this field.)
+
+Each attribute definition can be one of the following types:
+
+* `<attribute> = <value>`<br>
+  Sets an attribute to the given literal value (see section [Literal Values & Operators](#literal-values-operators)). _\<value\>_ may also be an **expression** composed of literal values, operators (see [section](#literal-values-operators)) and other attribute names (see section [References](#references)).
+
+* `<attribute> += <value>`<br>
+  `<attribute> -= <value>`<br>
+  `<attribute> *= <value>`<br>
+  `<attribute> /= <value>`<br>
+  Shorthand notation for `<attribute> = <reference> + <value>`, `<attribute> = <reference> - <value>` etc.
+   *  In a _linetype_ section, _<reference>_ means `default.<attribute>`.
+   *  In an _inlinetag_ section, _<reference>_ means `parent.<attribute>`.
+   *  In all other types of sections, this statement is illegal, since there is nothing to refer to.
+
+* `<attribute> toggle`<br>
+  Sets a "yes/no"-type attribute to the opposite value. Only allowed in _inlinetag_ definitions where it is equivalent to `<attribute> = parent.<attribute> xor 1`.
+
+* `<assigment> if <condition>`<br>
+   The _<assignment>_, which may take any of the forms described above, is only issued if the _<condition>_ is true. The condition is an expression that contains a **comparison operator**: `= ==` (equals), `!= <> ≠` (not equal to), `>` (greater than), `>= ≥` (greater or equal), `<` (less than), `<= ≤` (less or equal).
+
+* TODO: Complete extracting the syntax description from the implementation in `inner-interp.tcl` and `outer-interp.tcl`
+
+### Literal Values; Operators
+
+| Type | Literal values | Operators |
+| **Numbers** | like `123` or `1.54` | Standard operators `+ - * /` are defined. Unicode `·` is allowed for multiplication. |
+| **Flags** ("yes/no" values) | `yes no on off true false` | Boolean operators `and or not xor` |
+| **Strings** (text values) | `Singleword` `"multi word"` `{$trange"chars}` | No operators available. |
+
+### References
+
+TODO: Table
+| Syntax | Refers to | Allowed in |
+| `default.<attr>` | Value of _<attr>_ defined in `default` section | inlinetag, linetype |
+| `parent.<attr>` | Value of _<attr>_ just outside the current tag range | inlinetag |
+| `<linetype>.<attr>` | Value of _<attr>_ as set in the definition of _<linetype>_ | inlinetag, linetype |
+| `<attr>` | Value of _<attr>_ as defined before | default |
+
+All references except _default.<attr>_ are evaluated in a single pass, while the tagsheet is being read into the interpreter. This means that each reference will access the corresponding attribute value as it has been set by all the preceding attribute definitions.  Circular references like `a=b; b=a` are therefore impossible, since the first statement tries to access `b` which is unknown at this time (or it sets `a` to the default value for `b` if that exists). This is typical **imperative semantics; Tagsheets are not purely declarative.**
 
 -----------------------------------------------------------------------------
 

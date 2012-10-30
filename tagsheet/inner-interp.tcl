@@ -55,12 +55,14 @@ iproc attr_setop {attr op expr} {
 	if {[attr_gettype $attr]!="Number"} {
 		error "$op is only allowed for Number attributes"
 	}
-	if {$::MODE != "inlinetag"} {
-		error "$op is only allowed in inlinetag definitions"
+	switch $::MODE \
+		"inlinetag" {set ref "parent"} \
+		"linetype" {set ref "default"} \
+	default {
+			error "$op is only allowed in inlinetag and linetype definitions"
 	}
-	
 	set op [string index $op 0]  ;# discard trailing '=' sign
-	attr_set $attr "parent.$attr $op ($expr)"
+	attr_set $attr "$ref.$attr $op ($expr)"
 }
 # implement "attr = expr" (all cases like "toggle" and "+=" call this)
 iproc attr_set {attr expr} {
@@ -97,4 +99,3 @@ iproc attr_isinlineattr {attr} {
 	return [expr {$attr in [list font color background size offset bold italic underline \
 		overstrike]}]
 }
-

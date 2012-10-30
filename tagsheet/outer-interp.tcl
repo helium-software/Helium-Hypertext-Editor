@@ -110,8 +110,11 @@ iproc attr_set {attr expr} {
 		set expr [string range $expr 0    $if_pos-1]
 		# translate logical constants and operators to "C" style
 		# (expr does not provide calculations with yes and friends)
-		set cond [string map {" xor " ^ " and " & " or " | "not " ! " = " ==
-			yes 1 no 0 on 1 off 0 true 1 false 0} $cond]
+		set cond [string map {
+			" xor " ^  " and " &  " or " |  "not " !
+			= ==  ≠ !=  ≥ >=  ≤ <=
+			yes 1 no 0 on 1 off 0 true 1 false 0
+		} $cond]
 		# if we can (no parent references), calculate $cond and abort if it isn't true
 		if {[string first {$} $cond] == -1} {
 			# quote anything that looks like a string (meaning of the regular expression:
@@ -140,6 +143,8 @@ iproc attr_set {attr expr} {
 	String {
 		# don't do anything
 	} Number {
+		# translate Unicode multiplication sign to *
+		set expr [string map {"·" "*"} $epr]
 		# if we can (no parent references), calculate $expr as an expression, 
 		if {[string first {$} $expr] == -1} {
 			set expr [expr $expr]
