@@ -105,7 +105,8 @@ Example: `listindents  +10 +10 +10 +4 ...` defines an indentation step of 10 px 
 Expressions
 -----------
 
-This section describes the syntax of the _{ attribute definitions }_ field that has been mentioned in the previous sections. 
+This section describes the syntax of the _{ attribute definitions }_ field that has been mentioned in the previous sections.<br>
+_For a short overview, see the [German version](ausdr%C3%BCcke) below._
 
 Between the curly braces (see the [Example](#example)), an arbitrary number of attribute definitions can be specified, either each on an individual line, or multiple definitions on one line, separated by semicolons.
 
@@ -131,16 +132,6 @@ Each attribute definition can be one of the following types:
 * `<assigment> if <condition>`<br>
    The _\<assignment\>_, which may take any of the forms described above, is only issued if the _\<condition\>_ is true. The condition is an expression that contains a **comparison operator**: `= ==` (equals), `!= <> ≠` (not equal to), `>` (greater than), `>= ≥` (greater or equal), `<` (less than), `<= ≤` (less or equal).
 
-* TODO: Complete extracting the syntax description from the implementation in `inner-interp.tcl` and `outer-interp.tcl`
-
-### Literal Values; Operators
-
-| Type                        | Literal values       | Operators |
-| --------------------------- | -------------------- | --------- |
-| **Numbers**                 | like `123` or `1.54` | Standard operators `+ - * /` are defined. Unicode `·` is allowed for multiplication. |
-| **Flags** ("yes/no" values) | `yes no on off true false` | Boolean operators `and or not xor` |
-| **Strings** (text values)   | `Singleword` `"multi word"` `{$trange"chars}` | No operators available. |
-
 ### References
 
 | Syntax | Refers to | Allowed in |
@@ -151,6 +142,14 @@ Each attribute definition can be one of the following types:
 | `<attr>` | Value of _\<attr\>_ as defined before | default |
 
 All references except _default.\<attr\>_ are evaluated in a single pass, while the tagsheet is being read into the interpreter. This means that each reference will access the corresponding attribute value as it has been set by all the preceding attribute definitions.  Circular references like `a=b; b=a` are therefore impossible, since the first statement tries to access `b` which is unknown at this time (or it sets `a` to the default value for `b` if that exists). This is typical **imperative semantics; Tagsheets are not purely declarative.**
+
+### Literal Values; Operators
+
+| Type                        | Literal values       | Operators |
+| --------------------------- | -------------------- | --------- |
+| **Numbers**                 | like `123` or `1.54` | Standard operators `+ - * /` are defined. Unicode `·` is allowed for multiplication. |
+| **Flags** ("yes/no" values) | `yes no on off true false` | Boolean operators `and or not xor` |
+| **Strings** (text values)   | `Singleword` `"multi word"` `{$trange"chars}` | No operators available. |
 
 -----------------------------------------------------------------------------
 
@@ -258,21 +257,23 @@ Beispiel: `listindents  +10 +10 +10 +4 ...` definiert eine Einrückung von 10 px
 | **Abstand**      | **0** | **10** | **20** | **30** | **34** | **38** | **42** | **46** | **...**
 
 
-Ausdrücke (Brainstorming)
+Ausdrücke
 ---------
 
+_Dies ist eine kurze Übersicht. Für Details siehe die [englische Version](expressions)._
+
 * In default:
-      Keine Referenzen, ausser auf vorher definierte andere Attribute (z.B. `italic = yes; bold = italic`)
+    * Keine Referenzen, ausser auf vorher definierte andere Attribute (z.B. `italic = yes; bold = italic`)
 * In linetype:
-      Default-Referenz für += etc. und toggle ist der Default-Stil.
-      Referenz auf Default-Stil: `aaa = default.bbb`
-      Referenz auf andere Stile: `aaa = myheading.bbb`
+    * Default-Referenz für += etc. und toggle ist der Default-Stil.
+    * Referenz auf Default-Stil: `aaa = default.bbb`
+    * Referenz auf andere Stile: `aaa = myheading.bbb`
 * In inlinetag:
-      Default-Referenz für += etc. und toggle ist der Stil des Vorgängers (beinhaltender inlinetag // linetype // default).
-      Referenz auf Vorgänger: `aaa = parent.bbb`
-      Keine Referenz auf andere inlinetags erlaubt, da diese Vorgänger-relativ sind.
-      Referenz auf linetype: `aaa = myheading.bbb`
-      Referenz auf Default-Stil: `aaa = default.bbb`
+    * Default-Referenz für += etc. und toggle ist der Stil des Vorgängers (beinhaltender inlinetag / linetype / default).
+    * Referenz auf Vorgänger: `aaa = parent.bbb`
+    * Keine Referenz auf andere inlinetags erlaubt, da diese Vorgänger-relativ sind.
+    * Referenz auf linetype: `aaa = myheading.bbb`
+    * Referenz auf Default-Stil: `aaa = default.bbb`
 * Allgemein darf nicht auf weiter unten definierte Stile (bzw. Attribute im selben Stil-Block) Bezug genommen werden (sonst könnten Zirkelschlüsse wie `aaa = bbb; bbb = aaa` entstehen). Es ist jedoch -- wie in CSS -- erlaubt, einen Stil nachträglich mit einem Attributblock zu erweitern. Damit sollten verschiedene Design-Aspekte (Bsp. Positionierung und Farbgebung) besser auseinander gehalten werden können.
 
 ```
