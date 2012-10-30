@@ -14,7 +14,9 @@ Synopsis
    * [linetype](#linetype)
    * [default](#default)
    * [listindents](#listindents)
-* [Expressions](#expressions)
+* [Attribute Definitions](#attribute-definitions)
+   * [References](#references)
+   * [Literal Values; Operators](#literal-values-operators)
 
 Example
 -------
@@ -102,11 +104,11 @@ Example: `listindents  +10 +10 +10 +4 ...` defines an indentation step of 10 px 
 | **Left margin**  | **0** | **10** | **20** | **30** | **34** | **38** | **42** | **46** | **...**
 
 
-Expressions
------------
+Attribute Definitions
+---------------------
 
 This section describes the syntax of the _{ attribute definitions }_ field that has been mentioned in the previous sections.<br>
-_For a short overview, see the [German version](ausdr%C3%BCcke) below._
+_For a short overview, see the [German version](attribut-definitionen) below._
 
 Between the curly braces (see the [Example](#example)), an arbitrary number of attribute definitions can be specified, either each on an individual line, or multiple definitions on one line, separated by semicolons.
 
@@ -167,7 +169,7 @@ Das Native Datenformat sieht die _Verwendung_ beliebiger Absatz- und Zeichenstil
    * [linetype](#linetype-1)
    * [default](#default-1)
    * [listindents](#listindents-1)
-* [Ausdrücke](#ausdr%C3%BCcke)
+* [Attribut-Definitonen](#attribut-definitionen)
 
 
 Beispiel
@@ -257,10 +259,10 @@ Beispiel: `listindents  +10 +10 +10 +4 ...` definiert eine Einrückung von 10 px
 | **Abstand**      | **0** | **10** | **20** | **30** | **34** | **38** | **42** | **46** | **...**
 
 
-Ausdrücke
----------
+Attribut-Definitionen
+---------------------
 
-_Dies ist eine kurze Übersicht. Für Details siehe die [englische Version](expressions)._
+_Dies ist eine kurze Übersicht. Für Details siehe die [englische Version](attribute-definitions)._
 
 * In default:
     * Keine Referenzen, ausser auf vorher definierte andere Attribute (z.B. `italic = yes; bold = italic`)
