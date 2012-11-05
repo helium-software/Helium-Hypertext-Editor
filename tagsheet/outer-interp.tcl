@@ -141,7 +141,13 @@ iproc attr_set {attr expr} {
 	## calculate the resulting attribute, depending on its type
 	switch $type {
 	String {
-		# don't do anything
+		# There are no operators defined for strings, except the "parasitic space operator"
+		# which is handled correctly without intervention.
+		# What we need to do is making sure that no list nesting occurs in our string values,
+		# i.e. [font "DejaVu Sans"] should be the same as [font DejaVu Sans].
+		catch { #over-safety, ignore errors if unbalanced braces ever happen to appear
+			set expr [concat {*}$expr]
+		}
 	} Number {
 		# translate Unicode multiplication sign to *
 		set expr [string map {"·" "*"} $epr]

@@ -151,7 +151,17 @@ All references except _default.\<attr\>_ are evaluated in a single pass, while t
 | --------------------------- | -------------------- | --------- |
 | **Numbers**                 | like `123` or `1.54` | Standard operators `+ - * /` are defined. Unicode `·` is allowed for multiplication. |
 | **Flags** ("yes/no" values) | `yes no on off true false` | Boolean operators `and or not xor` |
-| **Strings** (text values)   | `Singleword` `"multi word"` `{$trange"chars}` | No operators available. |
+| **Strings** (text values)   | `Singleword` `"multi word"` `{$trange"chars}` | A space between two string values joins them with a space between. |
+
+The "space operator" for strings has been designed to effectively allow writing multi-word values without any quotes, as in `font = Century Schoolbook L`. Additionally, the following code example is valid, resulting _bbb_ having a _font_ attribute of "DejaVu Sans Condensed":
+```
+linetype aaa AAA {
+	font = DejaVu Sans
+}
+linetype bbb BBB {
+	font = aaa.font Condensed
+}
+```
 
 -----------------------------------------------------------------------------
 
