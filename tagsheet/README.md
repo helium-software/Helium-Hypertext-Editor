@@ -32,7 +32,7 @@ linetype h1 "Heading 1" {
 	topskip = 5 ; bottomskip = 3
 }
 inlinetag emph "Emphasize" {
-	italic = parent.italic xor 1
+	italic = not parent.italic
 	italic toggle  ;#alternative form
 }
 inlinetag big "Bigger" {
@@ -47,7 +47,7 @@ inlinetag bold "Bold print" {
 Structure
 ---------
 
-A tagsheet is a Tcl script that makes use of some specific commands (while being prohibited from using some other, dangerous ones). It consists of a sequence of style definitions (commands _linetype_, _default, or _inlinetag_) and special statements (_listindent_ etc.), and — in complex cases — standard Tcl commands like _set_ or _lindex_.
+A tagsheet is a Tcl script that makes use of some specific commands (while being prohibited from using some other, dangerous ones). It consists of a sequence of style definitions (commands _linetype_, _default_, or _inlinetag_) and special statements (<i>listindent</i> etc.), and — in complex cases — standard Tcl commands like _set_ or _lindex_.
 
 ### inlinetag
 
@@ -129,7 +129,7 @@ Each attribute definition can be one of the following types:
   In all other types of sections, this statement is illegal, since there is nothing to refer to.
 
 * `<attribute> toggle`<br>
-  Sets a "yes/no"-type attribute to the opposite value. Only allowed in _inlinetag_ definitions where it is equivalent to `<attribute> = parent.<attribute> xor 1`.
+  Sets a "yes/no"-type attribute to the opposite value. Only allowed in _inlinetag_ definitions where it is equivalent to `<attribute> = not parent.<attribute>` and `<attribute> = parent.<attribute> xor 1`.
 
 * `<assigment> if <condition>`<br>
    The _\<assignment\>_, which may take any of the forms described above, is only issued if the _\<condition\>_ is true. The condition is an expression that contains a **comparison operator**: `= ==` (equals), `!= <> ≠` (not equal to), `>` (greater than), `>= ≥` (greater or equal), `<` (less than), `<= ≤` (less or equal).
@@ -186,7 +186,7 @@ linetype h1 "Überschrift 1" {
 	topskip = 5 ; bottomskip = 3
 }
 inlinetag emph "Betont" {
-	italic = parent.italic xor 1
+	italic = not parent.italic
 	italic toggle  ;#alternative Form
 }
 inlinetag big "Größer" {
@@ -201,7 +201,7 @@ inlinetag bold "Fettdruck" {
 Aufbau
 ------
 
-Ein Tagsheet ist ein Tcl-Skript, dem spezielle Befehle zur Verfügung stehen (und gewisse gefährliche Befehle nicht). Es besteht aus einer Folge von Stil-Definitionen (Befehl _linetype_ oder _inlinetag_) und Spezial-Statements (_listindent_ etc.); für komplexe Fälle stehen auch Standard-Tcl-Befehle wie _set_ oder _lindex_ zur Verfügung.
+Ein Tagsheet ist ein Tcl-Skript, dem spezielle Befehle zur Verfügung stehen (und gewisse gefährliche Befehle nicht). Es besteht aus einer Folge von Stil-Definitionen (Befehl _linetype_ oder _inlinetag_) und Spezial-Statements (<i>listindent</i> etc.); für komplexe Fälle stehen auch Standard-Tcl-Befehle wie _set_ oder _lindex_ zur Verfügung.
 
 ### inlinetag
 
@@ -276,7 +276,7 @@ _Dies ist eine kurze Übersicht. Für Details siehe die [englische Version](attr
     * Keine Referenz auf andere inlinetags erlaubt, da diese Vorgänger-relativ sind.
     * Referenz auf linetype: `aaa = myheading.bbb`
     * Referenz auf Default-Stil: `aaa = default.bbb`
-* Allgemein darf nicht auf weiter unten definierte Stile (bzw. Attribute im selben Stil-Block) Bezug genommen werden (sonst könnten Zirkelschlüsse wie `aaa = bbb; bbb = aaa` entstehen). Es ist jedoch -- wie in CSS -- erlaubt, einen Stil nachträglich mit einem Attributblock zu erweitern. Damit sollten verschiedene Design-Aspekte (Bsp. Positionierung und Farbgebung) besser auseinander gehalten werden können.
+* Allgemein darf nicht auf weiter unten definierte Stile (bzw. Attribute im selben Stil-Block) Bezug genommen werden (sonst könnten Zirkelschlüsse wie `aaa = bbb; bbb = aaa` entstehen). Es ist jedoch ‒ wie in CSS ‒ erlaubt, einen Stil nachträglich mit einem Attributblock zu erweitern. Damit sollten verschiedene Design-Aspekte (Bsp. Positionierung und Farbgebung) besser auseinander gehalten werden können.
 
 ```
 linetype test {
