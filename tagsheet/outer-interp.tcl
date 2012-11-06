@@ -112,7 +112,7 @@ iproc attr_set {attr expr} {
 		# (expr does not provide calculations with yes and friends)
 		set cond [string map {
 			" xor " ^  " and " &  " or " |  "not " !
-			= ==  ≠ !=  ≥ >=  ≤ <=
+			" = " ==  ≠ !=  ≥ >=  ≤ <=
 			yes 1 no 0 on 1 off 0 true 1 false 0
 		} $cond]
 		# if we can (no parent references), calculate $cond and abort if it isn't true
@@ -150,7 +150,7 @@ iproc attr_set {attr expr} {
 		}
 	} Number {
 		# translate Unicode multiplication sign to *
-		set expr [string map {"·" "*"} $epr]
+		set expr [string map {"·" "*"} $expr]
 		# if we can (no parent references), calculate $expr as an expression, 
 		if {[string first {$} $expr] == -1} {
 			set expr [expr $expr]
