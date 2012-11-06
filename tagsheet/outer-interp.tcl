@@ -21,6 +21,7 @@
 foreach inline_attr {font color background size offset bold italic underline overstrike} {
 	dict set ::parent_refs parent.$inline_attr $$inline_attr
 }
+#   ::listindents    list of the indentation distances from "listindents" command, like {6 4 3}
 
 iproc reset {} {
 	set ::dotattributes [dict create]
@@ -37,6 +38,7 @@ iproc reset {} {
 	set ::inlinetags [dict create]
 	set ::linetype_names [dict create]
 	set ::inlinetag_names [dict create]
+	set ::listindents 10
 }
 
 ## Implementation of tagsheet user commands
@@ -66,8 +68,25 @@ iproc inlinetag {name displayname attribdefs} {
 	inner-eval {set ::MODE inlinetag}
 	inner-eval [attribdef_subst $attribdefs]
 }
-iproc listindents {num args} {
-	# body: TODO
+iproc listindents {args} {
+	# eliminate "syntactic sugar" dots
+	if { [lindex $args end] in [list "..." "…"] } {
+		set args [lrange $args 0 end-1]
+	}
+	# complain if there are no indent distances given at all
+	if {$args==[list]} {
+		error "no list indents specified: must be like \"listindents +6 +4 ...\""
+	}
+	# go through the remaining arguments, all should be like +<num>
+	set result [list]
+	foreach arg $args {
+		set num [scan $arg "+%d"]
+		if {$num=={{}} || $num<0} {
+			error "bad argument format '$arg': must be +<num>, where <num> is non-negative"
+		}
+		lappend result $num
+	}
+	set ::listindents $result
 }
 
 ## Helper for tagsheet user commands

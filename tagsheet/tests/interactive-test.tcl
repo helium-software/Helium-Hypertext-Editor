@@ -9,7 +9,10 @@ source [file join $dir tclIndex]
 
 ::tagsheet::init
 
-## Build the GUI
+## Prepare arithmetic operators as commands
+namespace import ::tcl::mathop::*
+
+### Build the GUI - Text frames and labels
 ttk::style theme use clam
 pack [ttk::panedwindow .pw] -expand true -fill both
 
@@ -21,7 +24,6 @@ foreach frame {tagsheet output} {
 	.$frame.sb configure -command [list .$frame.text yview]
 	.$frame.text configure -yscrollcommand [list .$frame.sb set]
 }
-.output.text configure -tabs "160 left 180 left"
 
 ## Load Button
 place [ttk::menubutton .load -text "Load" -takefocus 0] -in .tagsheet -x 2 -y 2 -anchor nw
@@ -90,7 +92,7 @@ bind . <Control-KeyRelease-r> {.refresh state !pressed; .refresh invoke}
 .refresh configure -command {
 	::tagsheet::outer-interp eval reset
 	::tagsheet::outer-interp eval [.tagsheet.text get 1.0 end]
-	foreach globalvar {defaults linetypes inlinetags linetype_names inlinetag_names} {
+	foreach globalvar {defaults linetypes inlinetags linetype_names inlinetag_names listindents} {
 		set ::$globalvar [::tagsheet::outer-interp eval "set ::$globalvar"]
 	}
 	.output.text.render
@@ -105,58 +107,80 @@ grid [ttk::radiobutton .outputstyle.semantic] [ttk::radiobutton .outputstyle.dic
 	-takefocus 0 -command ".refresh invoke"
 set outputstyle semantic
 
-## Render the "parse tree" of the tagsheet to the .output.text widget
+
+### Render the "parse tree" of the tagsheet to the .output.text widget
 proc .output.text.render {} {
-	.output.text.render.$::outputstyle
+	.output.text.render.$::outputstyle [::tagsheet::getresults]
 	.output.text delete end-1char
 }
-
-proc .output.text.render.dicts {} {
+## Variant 1: Data-structure centered view
+proc .output.text.render.dicts {resultdict} {
 	.output.text delete 1.0 end
-	dict_dump ::linetype_names 1 ::linetypes 2 ::inlinetag_names 1 ::inlinetags 2 ::defaults 1
+	dict_dump_init
+	dict_dump $resultdict
+	dict_dump_finish
 }
-proc dict_dump {args} {
-	foreach {dict maxlevel} $args {
-		.output.text insert end "Contents of " title $dict title-tt " :\n" title
-		if {[llength [set $dict]]==0} {
-			.output.text insert end "{}\n"
-			continue
-		}
-		.output.text insert end "{\n"
-		dict_dump_recursive [set $dict] 1 $maxlevel
-		.output.text insert end "}\n"
-	}
-}
-proc dict_dump_recursive {dictValue level maxlevel} {
-	dict for {key value} $dictValue {
-		.output.text insert end [string repeat "    " $level]
-		.output.text insert end $key
-		if {[llength $value]%2 != 0 || $value=={} || $level==$maxlevel} {
-			.output.text insert end "\t[list $value]\n"
-			continue }
-		.output.text insert end " {\n"
-		dict_dump_recursive $value [expr $level+1] $maxlevel
-		.output.text insert end [string repeat "    " $level]
-		.output.text insert end "}\n"
-	}
-}
+.output.text tag configure emptystyle -font "Monospace -8" -background #ddd -foreground #555
+.output.text tag configure keystyle -foreground #00c
 
-proc .output.text.render.semantic {} {
+proc dict_dump_init {} {
+	set ::dict_dump_keylength [list 0 0 0 0]
+}
+proc dict_dump {dict {level 0} {maxlevel 3}} {
+	if {$dict=={}} {
+		.output.text insert end "{}" emptystyle "\n"
+	} elseif {$level<$maxlevel && $dict!={} && [string is list $dict] && ([llength $dict] & 1)==0} {
+		set lastkey [lindex $dict end-1]
+		foreach {key value} $dict {
+			# print the key, record its length
+			.output.text insert end "${key}\t" keystyle
+			set old_length [lindex $::dict_dump_keylength $level]
+			if {[string length $key]>$old_length} {
+				lset ::dict_dump_keylength $level [string length $key]
+			}
+			# correction for "defaults" and "listindents"
+			if {$level==0 && $key=="defaults"} {set maxlevel 2}
+			#if {$level==0 && $key=="listindents"} {set maxlevel 1}
+			# print values or subdicts
+			dict_dump $value [+ $level 1] $maxlevel
+			if {$key!=$lastkey} {
+				.output.text insert end [string repeat \t [- $level 0]]
+			}
+		}
+	} else {
+		.output.text insert end "${dict}\n"
+	}
+}
+proc dict_dump_finish {} {
+	set tabs [list]
+	set charwidth [font measure [.output.text cget -font] " "]
+	set currtab 0
+	foreach length $::dict_dump_keylength {
+		incr currtab [* [+ $length 2] $charwidth]
+		lappend tabs $currtab
+	}
+	.output.text configure -tabs $tabs
+}
+## Variant 2: Content-centered view
+proc .output.text.render.semantic {resultdict} {
 	.output.text delete 1.0 end
 	.output.text insert end "inlinetag styles:\n" title
-	dict for {name attrs} $::inlinetags {
-		set displayname [dict get $::inlinetag_names $name]
+	dict with resultdict {}
+	dict for {name attrs} $inlinetags {
+		set displayname [dict get $inlinetag_names $name]
 		print_style $name $displayname $attrs
 	}
 	.output.text insert end "linetype styles:\n" title
-	dict for {name attrs} $::linetypes {
-		set displayname [dict get $::linetype_names $name]
+	dict for {name attrs} $linetypes {
+		set displayname [dict get $linetype_names $name]
 		print_style $name $displayname $attrs
 	}
 	.output.text insert end "Default style:\n" title
-	print_attrs $::defaults
+	print_attrs $defaults
+	.output.text insert end "List indents (relative to each other): " title \
+		"$listindents … [lindex $listindents end]"
 }
-.output.text configure -font "Monospace -9"
+.output.text configure -font "Monospace -10"
 .output.text tag configure title -font "Sans -11 bold"
 .output.text tag configure title-tt -font "Monospace -11 bold"
 .output.text tag configure bold -font "Monospace -10 bold"

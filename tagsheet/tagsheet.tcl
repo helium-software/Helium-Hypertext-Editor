@@ -62,8 +62,10 @@ proc ::tagsheet::init {} {
 	::tagsheet::outer-interp alias  ::tcl::mathfunc::cond  ::tcl::mathfunc::cond
 }
 
+# For ::tagsheet::evalfile, see gui.tcl; unchecked_evalfile is called from there.
+
 proc ::tagsheet::unchecked_evalfile {filename} {
-	::tagsheet::outer-interp invokehidden $filename
+	::tagsheet::outer-interp invokehidden source $filename
 }
 
 ## Rounds all Number attributes inside 'outer-interp' to integers
@@ -81,12 +83,13 @@ proc ::tagsheet::round-values {} {
 	}	}	}	}
 }
 
-## Read tag definitions out of the tagsheet interpreter
+## Reads tag definitions out of the tagsheet interpreter
 proc ::tagsheet::getresults {} {
 	::tagsheet::outer-interp eval {
 		dict create \
 			defaults $::defaults \
 			linetype_names $::linetype_names    linetypes $::linetypes \
-			inlinetag_names $::inlinetag_names  inlinetags $::inlinetags
+			inlinetag_names $::inlinetag_names  inlinetags $::inlinetags \
+			listindents $::listindents
 	}
 }
