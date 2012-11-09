@@ -92,9 +92,6 @@ bind . <Control-KeyRelease-r> {.refresh state !pressed; .refresh invoke}
 .refresh configure -command {
 	::tagsheet::outer-interp eval reset
 	::tagsheet::outer-interp eval [.tagsheet.text get 1.0 end]
-	foreach globalvar {defaults linetypes inlinetags linetype_names inlinetag_names listindents} {
-		set ::$globalvar [::tagsheet::outer-interp eval "set ::$globalvar"]
-	}
 	.output.text.render
 }
 ## Radiobuttons for controlling output style
@@ -138,9 +135,10 @@ proc dict_dump {dict {level 0} {maxlevel 3}} {
 			if {[string length $key]>$old_length} {
 				lset ::dict_dump_keylength $level [string length $key]
 			}
-			# correction for "defaults" and "listindents"
+			# correction for "defaults", "listindents", "padding"
 			if {$level==0 && $key=="defaults"} {set maxlevel 2}
-			#if {$level==0 && $key=="listindents"} {set maxlevel 1}
+			if {$level==0 && $key=="listindents"} {set maxlevel 1}
+			if {$level==0 && $key=="padding"} {set maxlevel 2}
 			# print values or subdicts
 			dict_dump $value [+ $level 1] $maxlevel
 			if {$key!=$lastkey} {
@@ -178,7 +176,9 @@ proc .output.text.render.semantic {resultdict} {
 	.output.text insert end "Default style:\n" title
 	print_attrs $defaults
 	.output.text insert end "List indents (relative to each other): " title \
-		"$listindents … [lindex $listindents end]"
+		"$listindents … [lindex $listindents end]\n"
+	.output.text insert end "Padding: " title \
+		"x=[dict get $padding x] y=[dict get $padding y]"
 }
 .output.text configure -font "Monospace -10"
 .output.text tag configure title -font "Sans -11 bold"

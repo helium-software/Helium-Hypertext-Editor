@@ -22,6 +22,7 @@ foreach inline_attr {font color background size offset bold italic underline ove
 	dict set ::parent_refs parent.$inline_attr $$inline_attr
 }
 #   ::listindents    list of the indentation distances from "listindents" command, like {6 4 3}
+#   ::padding        dict like {x 5 y 4}, specifies distance of text content from widget border
 
 iproc reset {} {
 	set ::dotattributes [dict create]
@@ -39,6 +40,7 @@ iproc reset {} {
 	set ::linetype_names [dict create]
 	set ::inlinetag_names [dict create]
 	set ::listindents 10
+	set ::padding [dict create x 1 y 1]
 }
 
 ## Implementation of tagsheet user commands
@@ -87,6 +89,23 @@ iproc listindents {args} {
 		lappend result $num
 	}
 	set ::listindents $result
+}
+iproc padding {args} {
+	foreach arg $args {
+		set arg [split $arg =]
+		if {[llength $arg]!=2} {
+			error "bad syntax: must be: padding ?x=num? ?y=num?"
+		}
+		lassign $arg  dimension value
+		if {!([string is integer $value] && $value >= 0)} {
+			error "bad number $arg: must be positive integer"
+		}
+		switch $dimension x - y {
+				dict set ::padding $dimension $value
+		} default {
+				error "bad dimension $dimension: must be x or y"
+		}
+	}
 }
 
 ## Helper for tagsheet user commands

@@ -44,7 +44,7 @@ proc ::tagsheet::init {} {
 	
 	## Give them all the commands necessary for evaluating tagsheets
 
-	# this contains procedures linetype, default, inlinetag, listindents
+	# this contains procedures linetype, default, inlinetag, listindents, padding
 	::tagsheet::outer-interp invokehidden source \
 		[file join $::tagsheet::priv::scriptdir outer-interp.tcl]
 
@@ -90,6 +90,6 @@ proc ::tagsheet::getresults {} {
 			defaults $::defaults \
 			linetype_names $::linetype_names    linetypes $::linetypes \
 			inlinetag_names $::inlinetag_names  inlinetags $::inlinetags \
-			listindents $::listindents
+			listindents $::listindents  padding $::padding
 	}
 }
