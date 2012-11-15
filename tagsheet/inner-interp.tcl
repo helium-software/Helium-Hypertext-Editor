@@ -71,6 +71,11 @@ iproc attr_set {attr expr} {
 
 # get type of an attribute
 iproc attr_gettype {attr} {
+	if {$::MODE == "padding"} {
+		switch $attr {
+			x - y	{return Number}
+			default	{error "unknown attribute \"$attr\": must be x or y"}
+	}	}
 	switch $attr {
 		font - color  - background             {return String}
 		size - offset                          {return Number}
@@ -87,15 +92,4 @@ iproc attr_gettype {attr} {
 		 } }
 	}
 	error "unknown attribute \"$attr\""
-}
-# check if a string is an attribute
-# the following two procedures are identical to those in outer-interp.tcl (without attr_ prefix)
-iproc attr_isattr {attr} {
-	return [expr {$attr in [list font color background size offset bold italic underline \
-		overstrike leftmargin leftmargin1 rightmargin topskip bottomskip lineskip \
-		bulletdistance align bullet]}]
-}
-iproc attr_isinlineattr {attr} {
-	return [expr {$attr in [list font color background size offset bold italic underline \
-		overstrike]}]
 }

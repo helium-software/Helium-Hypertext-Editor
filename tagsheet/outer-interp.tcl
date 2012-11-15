@@ -90,22 +90,13 @@ iproc listindents {args} {
 	}
 	set ::listindents $result
 }
-iproc padding {args} {
-	foreach arg $args {
-		set arg [split $arg =]
-		if {[llength $arg]!=2} {
-			error "bad syntax: must be: padding ?x=num? ?y=num?"
-		}
-		lassign $arg  dimension value
-		if {!([string is integer $value] && $value >= 0)} {
-			error "bad number $arg: must be positive integer"
-		}
-		switch $dimension x - y {
-				dict set ::padding $dimension $value
-		} default {
-				error "bad dimension $dimension: must be x or y"
-		}
-	}
+iproc padding {attribdefs} {
+	# body is very analogous to 'default' procedure
+	set ::context padding
+	set ::name padding
+
+	inner-eval {set ::MODE padding}
+	inner-eval [attribdef_subst $attribdefs]
 }
 
 ## Helper for tagsheet user commands
@@ -140,6 +131,11 @@ iproc attr_set {attr expr} {
 		# substitute "parent.attr" and "attr"  (in the same step, since
 		#  "parent.attr" is replaced with something that still contains "attr")
 		set expr [string map [dict merge $::parent_refs [dict get $::inlinetags $::name]] $expr]
+	} "padding" {
+		# substitude "linetype.attr"
+		set expr [string map $::dotattributes $expr]
+		# substitute x and y
+		set expr [string map $::padding $expr]
 	}}
 	## handle "if" clause
 	set if_pos [string first " if " $expr]
@@ -225,15 +221,7 @@ iproc attr_set {attr expr} {
 		dict set ::dotattributes $::name.$attr $expr
 	} "inlinetag" {
 		dict set ::inlinetags $::name $attr $expr
+	} "padding" {
+		dict set ::padding $attr $expr
 	}}
-}
-# the following two procedures are identical to those in inner-interp.tcl (with attr_ prefix)
-iproc isattr {attr} {
-	return [expr {$attr in [list font color background size offset bold italic underline \
-		overstrike leftmargin leftmargin1 rightmargin topskip bottomskip lineskip \
-		bulletdistance align bullet]}]
-}
-iproc isinlineattr {attr} {
-	return [expr {$attr in [list font color background size offset bold italic underline \
-		overstrike]}]
 }

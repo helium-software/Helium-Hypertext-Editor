@@ -1,0 +1,10 @@
+default {
+	leftmargin = 10
+}
+linetype blubb "Blubberblubb" {
+	rightmargin = 3
+}
+padding {
+	y = default.leftmargin + blubb.rightmargin
+	x = y - 8
+}
