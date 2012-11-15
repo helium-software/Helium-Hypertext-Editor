@@ -14,6 +14,7 @@ Synopsis
    * [linetype](#linetype)
    * [default](#default)
    * [listindents](#listindents)
+   * [padding](#padding)
 * [Attribute Definitions](#attribute-definitions)
    * [References](#references)
    * [Literal Values; Operators](#literal-values-operators)
@@ -103,6 +104,14 @@ Example: `listindents  +10 +10 +10 +4 ...` defines an indentation step of 10 px 
 | ---------------- | ----- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | -------
 | **Left margin**  | **0** | **10** | **20** | **30** | **34** | **38** | **42** | **46** | **...**
 
+### padding
+
+Syntax: `padding { attribute definitions }`
+
+Defines the distances by which all text content should be placed apart from the text widget's borders. In difference to the effects available with the _leftmargin_, _rightmargin_, _topskip_ and _bottomskip_ attributes, the "padding" area can be thought as a **picture frame** that (1) lies above the text and hides overflow lines if the text contents are larger than the widget, and (2) its color is not affected by any text markup tags that set background colors. Internally the `-padx -pady` properties of the Tk text widget are set to those values.
+
+The _{ attribute definitions }_ are similar to those in other commands, but **only the attributes _x_ and _y_ are available**; they set the sizes of the left/right resp. top/bottom border. Reference of types _default.\<attr\>_ and _\<linetype\>.\<attr\>_ are accepted.
+
 
 Attribute Definitions
 ---------------------
@@ -179,6 +188,7 @@ Das Native Datenformat sieht die _Verwendung_ beliebiger Absatz- und Zeichenstil
    * [linetype](#linetype-1)
    * [default](#default-1)
    * [listindents](#listindents-1)
+   * [padding](#padding-1)
 * [Attribut-Definitonen](#attribut-definitionen)
 
 
@@ -267,6 +277,14 @@ Beispiel: `listindents  +10 +10 +10 +4 ...` definiert eine Einrückung von 10 px
 | Einrückungstiefe |   0   |   1    |   2    |   3    |    4   |    5   |    6   |    7   | ...
 | ---------------- | ----- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | -------
 | **Abstand**      | **0** | **10** | **20** | **30** | **34** | **38** | **42** | **46** | **...**
+
+### padding
+
+Syntax: `padding { Attribut-Definitionen }`
+
+Definiert die Abstände, um die jeglicher Textinhalt von den Rändern des Textwidgets entfernt sein soll. Im Unterschied zu den Effekten, die sich mit den Attributen _leftmargin_, _rightmargin_, _topskip_ und _bottomskip_ erreichen lassen, kann man sich den "padding"-Abstand als eine Art **Bilderrahmen** vorstellen. Dieser liegt über dem Textinhalt und kann überschüssige Zeilen verdecken, wenn der Text nicht auf der Widget-Fläche Platz hat, und nimmt nicht die Farbe von Inhalts-Tags an, die eine Hintergrundfarbe setzen. Intern setzen diese Werte die Eigenschaften `-padx -pady`des Tk-Textwidgets.
+
+Die _{ Attribut-Definitionen }_ sind analog zu denen in anderen Fällen, aber **nur die Attribute _x_ und _y_ sind vorhanden**; diese setzen die Breite des linken/rechten bzw. oberen/unteren Randes. Referenzen der Typen _default.\<attr\>_ und _\<linetype\>.\<attr\>_ sind erlaubt.
 
 
 Attribut-Definitionen
