@@ -62,13 +62,11 @@ proc ::tagsheet::init {} {
 	::tagsheet::outer-interp alias  ::tcl::mathfunc::cond  ::tcl::mathfunc::cond
 }
 
-# For ::tagsheet::evalfile, see gui.tcl; unchecked_evalfile is called from there.
-
-proc ::tagsheet::unchecked_evalfile {filename} {
+proc ::tagsheet::evalfile {filename} {
 	::tagsheet::outer-interp invokehidden source $filename
 }
 
-## Rounds all Number attributes inside 'outer-interp' to integers
+## Rounds all Number attributes inside 'outer-interp' to integers (deprecated)
 proc ::tagsheet::round-values {} {
 	::tagsheet::outer-interp eval {
 		foreach dictionary {::defaults ::linetypes ::inlinetags} {

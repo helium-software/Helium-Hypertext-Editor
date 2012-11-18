@@ -8,10 +8,13 @@
 ## tag and the normal markup tag.
 ## To enable the described mechanism for a given text widget, add the string
 ## "TextSelMechanism" to its bindtags.
-## Note that the 'mytag#sel' tags must be individually configured, either
-## directly or by using [::tk_text::makeseltag $widget mytag] which automatically
-## calculates a "selected background" color for «mytag#sel» as a function of
-## «mytag»'s background color.
+## The 'mytag#sel' tags can be individually configured, before the text selection
+## mechanism is triggered for the first time. If such a tag does not exist when
+## the mechanism applies tags to the selected text range, the tag is automatically
+## configured with a background color, calculated as an alpha-blended average
+## between the original and the selection color (see ::tk_text::makeseltag).
+## If you want to disable the blending mechanism for a certain tag, just create
+## it with no configuration options, as in [.text tag configure mytag].
 ##
 ## Note:
 ## 1) You should always set the -selectbackground and -inactiveselectbackground
@@ -24,7 +27,7 @@
 ##    be lighter than the selection outside of tags - this one is actually not
 ##    alpha-blended to the white widget background, because it is itself the
 ##    _source_ for alpha blending.
-##    This "problem" has been considered as a somewhat useful feature, since
+##    This "problem" has been considered a somewhat useful feature, since
 ##    it helps spotting ranges of tags with nearly invisible background colors
 ##    while selecting text. If you don't like it, either increase the alpha
 ##    opacity, or adjust the selection background to a blend of "pure selection
@@ -116,12 +119,14 @@ proc ::tk_text::selectionUpdateTags {window} {
 					dict unset tagstarts $tag
 				} else {set tagstart $startidx}
 				dict unset tagstarts $tag
+				if {"$tag#sel" ni [$window tag names]} {makeseltag $window $tag}
 				$window tag add "$tag#sel" $tagstart $tagend
 				dict lappend ::tk_text::appliedseltags $window "$tag#sel"
 			}
 		}
 		# process implicit "tagoff"s at end of selection range
 		dict for {tag tagstart} $tagstarts {
+			if {"$tag#sel" ni [$window tag names]} {makeseltag $window $tag}
 			$window tag add "$tag#sel" $tagstart $endidx
 			dict lappend ::tk_text::appliedseltags $window "$tag#sel"
 		}
@@ -133,34 +138,29 @@ proc ::tk_text::selectionUpdateTags {window} {
 # The procedure below creates tags for selected text, varying the color from the
 # base tag via alpha blending.
 
-# Helper image for reading color strings (like "yellow" or "#fcd") into R/G/B values
-image create photo ::tk_text::testphoto -width 1 -height 1
-
-proc ::tk_text::makeseltag {widget tagname {alpha 0.75}} {
-	# Optional third parameter alpha:
-	#  opacity of selection, laid "above" the colored tag
+proc ::tk_text::makeseltag {widget tagname} {
+	if {[dict exists $::tk_text::alpha $widget]} {
+		set alpha [dict get $::tk_text::alpha $widget]
+	} else {
+		set alpha 0.75
+	}
 
 	set tagcolor [$widget tag cget $tagname -background]
 	if {$tagcolor==""} return
+	set selcolor [$widget cget -selectbackground]
 	
-	# convert (eventually named) color to R/G/B numbers in 0..255
-	testphoto put $tagcolor
-	lassign [testphoto get 0 0] tagR tagG tagB
-	
-	# get the plain selection color from the "sel" tag, convert it to R/G/B too
-	testphoto put [$widget tag cget sel -background]
-	lassign [testphoto get 0 0] selR selG selB
-	
-	# calculate the specific selection color with alpha blending
-	set tagR [expr {round($alpha*$selR + (1-$alpha)*$tagR)}]
-	set tagG [expr {round($alpha*$selG + (1-$alpha)*$tagG)}]
-	set tagB [expr {round($alpha*$selB + (1-$alpha)*$tagB)}]
-	
+	set blend [::colorcalc::alphablendstrings $selcolor $tagcolor $alpha]
+
 	# create the specific selection tag
-	$widget tag configure "$tagname#sel" -background \
-		[format "#%02x%02x%02x" $tagR $tagG $tagB]
+	$widget tag configure "$tagname#sel" -background $blend
 	$widget tag raise "$tagname#sel"
 	
 	# utility: return the name of the tag just created
 	return "$tagname#sel"
+}
+
+# This procedure implements custom alpha definition for each text widget.
+# "alpha" describes the opacity of a selection, laid "above" the colored tag.
+proc ::tk_text::setalpha {widget alpha} {
+	dict set ::tk_text::alpha $widget $alpha
 }

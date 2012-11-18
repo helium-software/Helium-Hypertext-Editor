@@ -221,7 +221,7 @@ iproc attr_set {attr expr} {
 		# otherwise run a test against sample default values:
 		} else {
 			set size 12; set offset 0
-			if {[catch {expr $expr}]} {error "invalid expression syntax"}
+			if {[catch {expr $expr} catchresult]} {error "invalid expression syntax:\n$catchresult"}
 			# put expr in brackets for correct calculations in e.g. "aaa += 55; bbb = aaa * x"
 			set expr "($expr)"
 		}

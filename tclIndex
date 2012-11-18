@@ -10,9 +10,10 @@
 
 # Namespace creation follows
 
-namespace eval ::tcl::mathfunc {}
 namespace eval ::tagsheet {}
+namespace eval ::tcl::mathfunc {}
 namespace eval ::ttk_fixes {}
+namespace eval ::colorcalc {}
 namespace eval ::tagsheet::gui {}
 namespace eval ::tk_text {}
 
@@ -20,13 +21,17 @@ namespace eval ::tk_text {}
 
 set auto_index(::tagsheet::evalsinglefile) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::init) [list source [file join $dir . tagsheet tagsheet.tcl]]
-set auto_index(::tagsheet::unchecked_evalfile) [list source [file join $dir . tagsheet tagsheet.tcl]]
+set auto_index(::tagsheet::evalfile) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::round-values) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::getresults) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::gui::errorwindow) [list source [file join $dir . tagsheet gui.tcl]]
 set auto_index(::tagsheet::gui::mod-error) [list source [file join $dir . tagsheet gui.tcl]]
 set auto_index(::tagsheet::gui::mod-success) [list source [file join $dir . tagsheet gui.tcl]]
 set auto_index(::tagsheet::gui::mod-changed) [list source [file join $dir . tagsheet gui.tcl]]
+set auto_index(::colorcalc::fromstring) [list source [file join $dir . math colorcalc.tcl]]
+set auto_index(::colorcalc::tostring) [list source [file join $dir . math colorcalc.tcl]]
+set auto_index(::colorcalc::alphablend) [list source [file join $dir . math colorcalc.tcl]]
+set auto_index(::colorcalc::alphablendstrings) [list source [file join $dir . math colorcalc.tcl]]
 set auto_index(::tcl::mathfunc::cond) [list source [file join $dir . math cond.tcl]]
 set auto_index(get) [list source [file join $dir . tcl-custom getandset.tcl]]
 set auto_index(set_ifnotexists) [list source [file join $dir . tcl-custom getandset.tcl]]
@@ -36,6 +41,7 @@ set auto_index(::tk_text::selectionChange) [list source [file join $dir . toolki
 set auto_index(::tk_text::selectionTest) [list source [file join $dir . toolkit text-selection.tcl]]
 set auto_index(::tk_text::selectionUpdateTags) [list source [file join $dir . toolkit text-selection.tcl]]
 set auto_index(::tk_text::makeseltag) [list source [file join $dir . toolkit text-selection.tcl]]
+set auto_index(::tk_text::setalpha) [list source [file join $dir . toolkit text-selection.tcl]]
 set auto_index(bindtag_add) [list source [file join $dir . toolkit bindtags.tcl]]
 set auto_index(ttk_toplevel) [list source [file join $dir . toolkit ttk_fixes ttk_toplevel.tcl]]
 set auto_index(::ttk_fixes::toplevel.clam) [list source [file join $dir . toolkit ttk_fixes ttk_toplevel.tcl]]
