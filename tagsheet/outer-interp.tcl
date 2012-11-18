@@ -23,6 +23,8 @@ foreach inline_attr {font color background size offset bold italic underline ove
 }
 #   ::listindents    list of the indentation distances from "listindents" command, like {6 4 3}
 #   ::padding        dict like {x 5 y 4}, specifies distance of text content from widget border
+#   ::selection      dict like {color #ccc alpha 0.85}, defines appearance of selection highlight
+#   ::cursor         dict like {color #000 width 1 ontime 600 offtime 300}, defines appearance of cursor
 
 iproc reset {} {
 	set ::dotattributes [dict create]
@@ -41,6 +43,8 @@ iproc reset {} {
 	set ::inlinetag_names [dict create]
 	set ::listindents 10
 	set ::padding [dict create x 1 y 1]
+	set ::selection [dict create color "#c3c3c3" alpha 1]
+	set ::cursor [dict create color black width 2 ontime 600 offtime 300]
 }
 
 ## Implementation of tagsheet user commands
@@ -98,6 +102,22 @@ iproc padding {attribdefs} {
 	inner-eval {set ::MODE padding}
 	inner-eval [attribdef_subst $attribdefs]
 }
+iproc selection {attribdefs} {
+	# body is very analogous to 'default' procedure
+	set ::context selection
+	set ::name selection
+
+	inner-eval {set ::MODE selection}
+	inner-eval [attribdef_subst $attribdefs]
+}
+iproc cursor {attribdefs} {
+	# body is very analogous to 'default' procedure
+	set ::context cursor
+	set ::name cursor
+
+	inner-eval {set ::MODE cursor}
+	inner-eval [attribdef_subst $attribdefs]
+}
 
 ## Helper for tagsheet user commands
 
@@ -136,6 +156,16 @@ iproc attr_set {attr expr} {
 		set expr [string map $::dotattributes $expr]
 		# substitute x and y
 		set expr [string map $::padding $expr]
+	} "selection" {
+		# substitude "linetype.attr"
+		set expr [string map $::dotattributes $expr]
+		# substitute color and alpha
+		set expr [string map $::selection $expr]
+	} "cursor" {
+		# substitude "linetype.attr"
+		set expr [string map $::dotattributes $expr]
+		# substitute color, width, ontime, offtime
+		set expr [string map $::cursor $expr]
 	}}
 	## handle "if" clause
 	set if_pos [string first " if " $expr]
@@ -223,5 +253,9 @@ iproc attr_set {attr expr} {
 		dict set ::inlinetags $::name $attr $expr
 	} "padding" {
 		dict set ::padding $attr $expr
+	} "selection" {
+		dict set ::selection $attr $expr
+	} "cursor" {
+		dict set ::cursor $attr $expr
 	}}
 }

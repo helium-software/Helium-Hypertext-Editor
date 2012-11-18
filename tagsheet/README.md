@@ -15,6 +15,8 @@ Synopsis
    * [default](#default)
    * [listindents](#listindents)
    * [padding](#padding)
+   * [selection](#selection)
+   * [cursor](#cursor)
 * [Attribute Definitions](#attribute-definitions)
    * [References](#references)
    * [Literal Values; Operators](#literal-values-operators)
@@ -110,7 +112,35 @@ Syntax: `padding { attribute definitions }`
 
 Defines the distances by which all text content should be placed apart from the text widget's borders. In difference to the effects available with the _leftmargin_, _rightmargin_, _topskip_ and _bottomskip_ attributes, the "padding" area can be thought as a **picture frame** that (1) lies above the text and hides overflow lines if the text contents are larger than the widget, and (2) its color is not affected by any text markup tags that set background colors. Internally the `-padx -pady` properties of the Tk text widget are set to those values.
 
-The _{ attribute definitions }_ are similar to those in other commands, but **only the attributes _x_ and _y_ are available**; they set the sizes of the left/right resp. top/bottom border. Reference of types _default.\<attr\>_ and _\<linetype\>.\<attr\>_ are accepted.
+The _{ attribute definitions }_ are similar to those in other commands, but **only the attributes _x_ and _y_ are available**; they set the sizes of the left/right resp. top/bottom border. References of types _default.\<attr\>_ and _\<linetype\>.\<attr\>_ are accepted. It is also possible to refer to the values of _x_ and _y_, as in `x = 4; y = x-3`.
+
+### selection
+
+Syntax: `selection { attribute definitions }`
+
+Defines the appearance of selected text. The following attributes are provided:
+
+| Attribute | Signification
+| --------- | -------------
+| **color** | The color used for highlighting selected text.
+| **alpha** | Opacity/transparency of the coloured highlight mark, greater values mean more opacity. Allowed range is 0 to 1.
+
+References of types _default.\<attr\>_ and _\<linetype\>.\<attr\>_ are accepted.
+
+### cursor
+
+Syntax: `cursor { attribute definitions }`
+
+Defines the appearance of the blinking insertion cursor. The following attributes are provided:
+
+| Attribute   | Signification
+| ---------   | -------------
+| **color**   | cursor color (standard: black)
+| **width**   | cursor width in px. _When the cursor is placed at the left border of the widget, half of it gets unfortunately cut off, even with larger "padding" borders. This Tk misbehaviour can be masked by setting a width of 1._
+| **ontime**  | Duration of the blink phase where the cursor is visible (unit: milliseconds).
+| **offtime** | Duration of the blink phase where the cursor is invisible (unit: milliseconds). _Setting zero completely disables blinking, which can be favorable for slow X11 connections._
+
+References of types _default.\<attr\>_ and _\<linetype\>.\<attr\>_ are accepted, as well as referring to previously set attributes, as in `ontime = 500; offtime = ontime - 200`.
 
 
 Attribute Definitions
@@ -189,6 +219,8 @@ Das Native Datenformat sieht die _Verwendung_ beliebiger Absatz- und Zeichenstil
    * [default](#default-1)
    * [listindents](#listindents-1)
    * [padding](#padding-1)
+   * [selection](#selection-1)
+   * [cursor](#cursor-1)
 * [Attribut-Definitonen](#attribut-definitionen)
 
 
@@ -284,7 +316,35 @@ Syntax: `padding { Attribut-Definitionen }`
 
 Definiert die Abstände, um die jeglicher Textinhalt von den Rändern des Textwidgets entfernt sein soll. Im Unterschied zu den Effekten, die sich mit den Attributen _leftmargin_, _rightmargin_, _topskip_ und _bottomskip_ erreichen lassen, kann man sich den "padding"-Abstand als eine Art **Bilderrahmen** vorstellen. Dieser liegt über dem Textinhalt und kann überschüssige Zeilen verdecken, wenn der Text nicht auf der Widget-Fläche Platz hat, und nimmt nicht die Farbe von Inhalts-Tags an, die eine Hintergrundfarbe setzen. Intern setzen diese Werte die Eigenschaften `-padx -pady`des Tk-Textwidgets.
 
-Die _{ Attribut-Definitionen }_ sind analog zu denen in anderen Fällen, aber **nur die Attribute _x_ und _y_ sind vorhanden**; diese setzen die Breite des linken/rechten bzw. oberen/unteren Randes. Referenzen der Typen _default.\<attr\>_ und _\<linetype\>.\<attr\>_ sind erlaubt.
+Die _{ Attribut-Definitionen }_ sind analog zu denen in anderen Fällen, aber **nur die Attribute _x_ und _y_ sind vorhanden**; diese setzen die Breite des linken/rechten bzw. oberen/unteren Randes. Referenzen der Typen _default.\<attr\>_ und _\<linetype\>.\<attr\>_ sind erlaubt. Auf bereits gesetzte Werte von _x_ und _y_ kann ebenfalls Bezug genommen werden, z.B. `x = 4; y = x-3`.
+
+### selection
+
+Syntax: `selection { Attribut-Definitionen }`
+
+Definiert das Aussehen der Auswahl-Markierung. Folgende Attribute werden unterstützt:
+
+| Attribut  | Bedeutung
+| --------- | ---------
+| **color** | Farbe, mit der ausgewählter Text hinterlegt wird
+| **alpha** | Deckkraft/Transparenz der farbigen Hinterlegung, grössere Werte bedeuten mehr Deckkraft. Der Wertebereich ist 0 bis 1.
+
+Referenzen der Typen _default.\<attr\>_ und _\<linetype\>.\<attr\>_ sind erlaubt.
+
+### cursor
+
+Syntax: `cursor { Attribut-Definitionen }`
+
+Definiert das Aussehen der blinkenden Einfügemarke. Folgende Attribute werden unterstützt:
+
+| Attribut    | Bedeutung
+| ----------- | ---------
+| **color**   | Farbe (Standard: Schwarz)
+| **width**   | Breite in px. _Wird die Einfügemarke am linken Rand des Textfensters platziert, wird leider ein Teil abgeschnitten, auch bei grösseren "padding"-Abständen. Dieses Fehlverhalten von Tk kann durch Setzen einer Breite von 1 verborgen werden._
+| **ontime**  | Dauer der Blinkphase, in der die Marke sichtbar ist. (Einheit: Millisekunden)
+| **offtime** | Dauer der Blinkphase, in der die Marke unsichtbar ist. (Einheit: Millisekunden.) Ein Wert von _0_ bewirkt, dass die Marke nicht blinkt, was für langsame X11-Verbindungen vorteilhaft sein kann.
+
+Referenzen der Typen _default.\<attr\>_ und _\<linetype\>.\<attr\>_ sind erlaubt, sowie Bezug auf bereits gesetzte Attribute, Bsp. `ontime = 500; offtime = ontime - 200`.
 
 
 Attribut-Definitionen

@@ -76,6 +76,18 @@ iproc attr_gettype {attr} {
 			x - y	{return Number}
 			default	{error "unknown attribute \"$attr\": must be x or y"}
 	}	}
+	if {$::MODE == "selection"} {
+		switch $attr {
+			color	{return String}
+			alpha	{return Number}
+			default	{error "unknown attribute \"$attr\": must be color, or alpha"}
+	}	}
+	if {$::MODE == "cursor"} {
+		switch $attr {
+			color	{return String}
+			width - ontime - offtime	{return Number}
+			default	{error "unknown attribute \"$attr\": must be color, width, ontime, or offtime"}
+	}	}
 	switch $attr {
 		font - color  - background             {return String}
 		size - offset                          {return Number}

@@ -77,6 +77,7 @@ proc save_tagsheet {{filename ""}} {
 	set channel [open $filename w]
 	puts -nonewline $channel [.tagsheet.text get 1.0 end-1char]
 	close $channel
+	set ::filename [file tail $filename]
 }
 
 ## Refresh Button
@@ -135,12 +136,13 @@ proc dict_dump {dict {level 0} {maxlevel 3}} {
 			if {[string length $key]>$old_length} {
 				lset ::dict_dump_keylength $level [string length $key]
 			}
-			# correction for "defaults", "listindents", "padding"
-			if {$level==0 && $key=="defaults"} {set maxlevel 2}
-			if {$level==0 && $key=="listindents"} {set maxlevel 1}
-			if {$level==0 && $key=="padding"} {set maxlevel 2}
+			# additionally limit maxlevel to prevent "list-like" strings from being showed as sub-dicts
+			set rec_maxlevel $maxlevel
+			if {$level==0 && $key in [list "defaults" "inlinetag_names" "linetype_names"]} {set rec_maxlevel 2}
+			if {$level==0 && $key=="listindents"} {set rec_maxlevel 1}
+			if {$level==0 && $key in [list "padding" "selection" "cursor"]} {set rec_maxlevel 2}
 			# print values or subdicts
-			dict_dump $value [+ $level 1] $maxlevel
+			dict_dump $value [+ $level 1] $rec_maxlevel
 			if {$key!=$lastkey} {
 				.output.text insert end [string repeat \t [- $level 0]]
 			}
@@ -178,7 +180,12 @@ proc .output.text.render.semantic {resultdict} {
 	.output.text insert end "List indents (relative to each other): " title \
 		"$listindents … [lindex $listindents end]\n"
 	.output.text insert end "Padding: " title \
-		"x=[dict get $padding x] y=[dict get $padding y]"
+		"x=[dict get $padding x] y=[dict get $padding y]\n"
+	.output.text insert end "Selection: " title \
+		"color=[dict get $selection color] alpha=[dict get $selection alpha]\n"
+	.output.text insert end "Cursor: " title \
+		"color=[dict get $cursor color] width=[dict get $cursor width]  " "" \
+		"ontime=[dict get $cursor ontime] offtime=[dict get $cursor offtime]"
 }
 .output.text configure -font "Monospace -10"
 .output.text tag configure title -font "Sans -11 bold"

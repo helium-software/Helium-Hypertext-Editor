@@ -1,0 +1,9 @@
+# test for dict-dump code in interactive-test.tcl
+linetype "test me" "Teste mich" {color = blue; background = yellow; leftmargin = 4}
+linetype another "ein anderer" {font = Fancy Sans}
+inlinetag "test two" "Test zwei" {color = yellow; background = blue}
+inlinetag fancy "Speziell x" {font = Fancy Serif}
+listindents +10 +6
+padding {x = "1 4"}
+selection {color = "fancy blue"}
+cursor {color = "pseudo dict"}
