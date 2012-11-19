@@ -9,11 +9,14 @@ source [file join $dir tclIndex]
 
 ttk_useTheme clam
 wm state . withdrawn
-::tagsheet::gui::errorwindow /dev/null
+::tagsheet::gui::errorwindow \
+	[file join [file dirname [info script]] tagsheets example.tagsheet]\
+	2 "System error."
 
 bind .tagsheetw <Destroy> {destroy .}
 
-after 2000 ::tagsheet::gui::mod-error
-after 4000 ::tagsheet::gui::mod-success
-after 6000 ::tagsheet::gui::mod-changed
-after 8000 ::tagsheet::gui::mod-error
+namespace import ::tcl::mathop::*
+after 3000 ::tagsheet::gui::mod-error 2 {"I don't understand this."}
+after 6000 ::tagsheet::gui::mod-success
+after 9000 ::tagsheet::gui::mod-changed
+after 12000 ::tagsheet::gui::mod-error 2 {"I still can't understand you."}
