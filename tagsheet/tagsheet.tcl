@@ -60,10 +60,50 @@ proc ::tagsheet::init {} {
 	interp alias ::tagsheet::outer-interp attr_gettype  ::tagsheet::inner-interp attr_gettype
 	# make cond() known to the outer interpreter
 	::tagsheet::outer-interp alias  ::tcl::mathfunc::cond  ::tcl::mathfunc::cond
+
+	## Set up the outer interpreter's data structures (default settings etc.):
+	::tagsheet::outer-interp eval reset
 }
 
 proc ::tagsheet::evalfile {filename} {
 	::tagsheet::outer-interp invokehidden source $filename
+}
+## Try to read a tagsheet from $filename, producing useful error information when this fails.
+## Returns on success: dict {status success}
+## Returns on failure: dict {status fail result <error message> line <bad line of tagsheet>}
+proc ::tagsheet::catchevalfile {filename} {
+	set code [catch {::tagsheet::outer-interp invokehidden source $filename} result details]
+	if {$code==0} {
+		return [dict create status success]
+	} else {
+		# Find out the line where the error occurred
+		# (needs tedious text processing, but only in the case
+		#  when sourcing the tagsheet failed)
+		set lines [split [dict get $details -errorinfo] \n]
+		set lineinfo [lindex $lines end-4]
+		# Now, lineinfo contains the interesting line, which looks like:
+		#     (file "broken.tagsheet" line 1)
+		set lineinfo [lindex [split $lineinfo] end]
+		# discard ")" bracket
+		set line [string range $lineinfo 0 end-1]
+		
+		# Make the guess smarter by looking at infos like:
+		#     ("eval" body line 2)
+		set evalhint [lindex [lsearch -all -inline $lines {    ("eval" body line *)}] end]
+		if {$evalhint!=""} {
+			set evalhint [lindex [split $evalhint] end]
+			# discard ")" bracket and add to line
+			incr line [string range $evalhint 0 end-1]
+			# "eval body" lines are 1-based
+			incr line -1
+		}
+	
+		# fix ugly error format when expr fails
+		if {[regexp {(invalid bareword ".*")\n(in expression ".*");\nshould be} $result "" resultA resultB]} {
+			set result "$resultA $resultB"
+		}
+		return [dict create status fail  result $result  line $line]
+	}
 }
 
 ## Rounds all Number attributes inside 'outer-interp' to integers (deprecated)
