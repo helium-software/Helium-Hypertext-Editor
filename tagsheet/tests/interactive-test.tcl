@@ -33,7 +33,8 @@ place [ttk::menubutton .load -text "Load" -takefocus 0] -in .tagsheet -x 2 -y 2 
 	.load configure -menu .load.menu
 proc .load.update [list [list info_script [info script]]] {
 	.load.menu delete 0 end
-	foreach tagsheet [glob -nocomplain -directory [file dirname $info_script] *.tagsheet] {
+	set dir [file join [file dirname $info_script] tagsheets]
+	foreach tagsheet [glob -nocomplain -directory $dir *.tagsheet] {
 		.load.menu add command -label [file rootname [file tail $tagsheet]] -command "
 			[list load_tagsheet $tagsheet]
 		"
@@ -77,7 +78,7 @@ proc save_tagsheet {{filename ""}} {
 	set channel [open $filename w]
 	puts -nonewline $channel [.tagsheet.text get 1.0 end-1char]
 	close $channel
-	set ::filename [file tail $filename]
+	set ::filename $filename
 }
 
 ## Refresh Button

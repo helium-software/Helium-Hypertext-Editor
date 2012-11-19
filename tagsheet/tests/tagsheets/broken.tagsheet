@@ -1,0 +1,12 @@
+linetype test "test linetype" {
+	eval {
+		leftmargin = 4
+	}
+}
+
+inlinetag blubb "Blubber" {
+	size = 44
+	offset = 4 + 3
+	size += 50x;
+	foo = bar;
+}
