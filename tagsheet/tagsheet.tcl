@@ -68,13 +68,31 @@ proc ::tagsheet::init {} {
 proc ::tagsheet::evalfile {filename} {
 	::tagsheet::outer-interp invokehidden source $filename
 }
+
+## Try to evaluate tagsheet code directly from the given argument
+## (return value: see catchevalfile)
+proc ::tagsheet::catchevaldirect {content} {
+	# extra "eval" indirection, in order to have line info showing up as '("eval" body line 4)',
+	# which is compatible to '(file "broken.tagsheet" line 4)'.
+	# Code is first read into a variable to avoid getting the complete code into the stacktrace
+	::tagsheet::outer-interp eval [list set catchevaldirect $content]
+	set code [catch {::tagsheet::outer-interp eval {eval $catchevaldirect}} result details]
+	::tagsheet::outer-interp eval [list unset catchevaldirect]
+	::tagsheet::catcheval_common $code $result $details
+}
 ## Try to read a tagsheet from $filename, producing useful error information when this fails.
 ## Returns on success: dict {status success}
-## Returns on failure: dict {status fail result <error message> line <bad line of tagsheet>}
+## Returns on failure: dict {status fail result <error message> line <bad line# of tagsheet>}
+## Returns on file not found: dict {status notfound}
 proc ::tagsheet::catchevalfile {filename} {
 	set code [catch {::tagsheet::outer-interp invokehidden source $filename} result details]
+	::tagsheet::catcheval_common $code $result $details
+}
+proc ::tagsheet::catcheval_common {code result details} {
 	if {$code==0} {
 		return [dict create status success]
+	} elseif {[dict get $details -errorcode]=="POSIX ENOENT {no such file or directory}"} {
+		return [dict create status notfound]
 	} else {
 		# Find out the line where the error occurred
 		# (needs tedious text processing, but only in the case
@@ -89,6 +107,9 @@ proc ::tagsheet::catchevalfile {filename} {
 		
 		# Make the guess smarter by looking at infos like:
 		#     ("eval" body line 2)
+		set lines [lrange $lines 0 end-5]
+			# The line at index end-4 that gave $lineinfo might be another '("eval" body line n)'
+			# (when called from catchevaldirect) and must be discarded.
 		set evalhint [lindex [lsearch -all -inline $lines {    ("eval" body line *)}] end]
 		if {$evalhint!=""} {
 			set evalhint [lindex [split $evalhint] end]

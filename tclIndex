@@ -10,8 +10,8 @@
 
 # Namespace creation follows
 
-namespace eval ::tcl::mathfunc {}
 namespace eval ::ttk_fixes {}
+namespace eval ::tcl::mathfunc {}
 namespace eval ::tagsheet {}
 namespace eval ::colorcalc {}
 namespace eval ::tagsheet::gui {}
@@ -22,7 +22,9 @@ namespace eval ::tk_text {}
 set auto_index(::tagsheet::evalsinglefile) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::init) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::evalfile) [list source [file join $dir . tagsheet tagsheet.tcl]]
+set auto_index(::tagsheet::catchevaldirect) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::catchevalfile) [list source [file join $dir . tagsheet tagsheet.tcl]]
+set auto_index(::tagsheet::catcheval_common) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::round-values) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::getresults) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::gui::evalfile) [list source [file join $dir . tagsheet gui.tcl]]
@@ -31,6 +33,9 @@ set auto_index(::tagsheet::gui::mod-error) [list source [file join $dir . tagshe
 set auto_index(::tagsheet::gui::mod-success) [list source [file join $dir . tagsheet gui.tcl]]
 set auto_index(::tagsheet::gui::mod-changed) [list source [file join $dir . tagsheet gui.tcl]]
 set auto_index(::tagsheet::gui::reeval) [list source [file join $dir . tagsheet gui.tcl]]
+set auto_index(::tagsheet::gui::cancel) [list source [file join $dir . tagsheet gui.tcl]]
+set auto_index(::tagsheet::gui::saveandcont) [list source [file join $dir . tagsheet gui.tcl]]
+set auto_index(::tagsheet::gui::cont) [list source [file join $dir . tagsheet gui.tcl]]
 set auto_index(::colorcalc::fromstring) [list source [file join $dir . math colorcalc.tcl]]
 set auto_index(::colorcalc::tostring) [list source [file join $dir . math colorcalc.tcl]]
 set auto_index(::colorcalc::alphablend) [list source [file join $dir . math colorcalc.tcl]]
@@ -38,6 +43,8 @@ set auto_index(::colorcalc::alphablendstrings) [list source [file join $dir . ma
 set auto_index(::tcl::mathfunc::cond) [list source [file join $dir . math cond.tcl]]
 set auto_index(readfile) [list source [file join $dir . tcl-custom files.tcl]]
 set auto_index(writefile) [list source [file join $dir . tcl-custom files.tcl]]
+set auto_index(readfile_discardnl) [list source [file join $dir . tcl-custom files.tcl]]
+set auto_index(writefile_addnl) [list source [file join $dir . tcl-custom files.tcl]]
 set auto_index(get) [list source [file join $dir . tcl-custom getandset.tcl]]
 set auto_index(set_ifnotexists) [list source [file join $dir . tcl-custom getandset.tcl]]
 set auto_index(lremove) [list source [file join $dir . tcl-custom listop.tcl]]
