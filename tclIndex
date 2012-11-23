@@ -19,15 +19,16 @@ namespace eval ::tk_text {}
 
 # Index of procedures follows
 
-set auto_index(::tagsheet::evalsinglefile) [list source [file join $dir . tagsheet tagsheet.tcl]]
-set auto_index(::tagsheet::init) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::evalfile) [list source [file join $dir . tagsheet tagsheet.tcl]]
+set auto_index(::tagsheet::init) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::catchevaldirect) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::catchevalfile) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::catcheval_common) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::round-values) [list source [file join $dir . tagsheet tagsheet.tcl]]
 set auto_index(::tagsheet::getresults) [list source [file join $dir . tagsheet tagsheet.tcl]]
-set auto_index(::tagsheet::gui::evalfile) [list source [file join $dir . tagsheet gui.tcl]]
+set auto_index(::tagsheet::gui::handleerror) [list source [file join $dir . tagsheet gui.tcl]]
+set auto_index(::tagsheet::gui::filenotfound_dialog) [list source [file join $dir . tagsheet gui.tcl]]
+set auto_index(::tagsheet::gui::filenotfound_retry) [list source [file join $dir . tagsheet gui.tcl]]
 set auto_index(::tagsheet::gui::errorwindow) [list source [file join $dir . tagsheet gui.tcl]]
 set auto_index(::tagsheet::gui::mod-error) [list source [file join $dir . tagsheet gui.tcl]]
 set auto_index(::tagsheet::gui::mod-success) [list source [file join $dir . tagsheet gui.tcl]]

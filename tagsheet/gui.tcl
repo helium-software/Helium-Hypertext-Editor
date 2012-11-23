@@ -4,18 +4,61 @@ namespace eval ::tagsheet::gui {}
 ## a window that allows editing the tagsheet contents.
 ## This is the only procedure intended to be called from the outside.
 
-proc ::tagsheet::gui::evalfile {filename} {
-	::tagsheet::init
-	set errordict [::tagsheet::catchevalfile $filename]
-	if {[dict get $errordict status]=="success"} {
-		return [::tagsheet::getresults]
-	} else {
-		::tagsheet::gui::errorwindow $filename [dict get $errordict line] [dict get $errordict result]
-		tkwait variable ::tagsheet::gui::results
-		set results $::tagsheet::gui::results
-		destroy .tagsheetw ;# this destroys the original ::tagsheet::gui::results
-		return $results
+proc ::tagsheet::gui::handleerror {filename errordict} {
+	# handle "file not found"
+	if {[dict get $errordict status]=="notfound"} {
+		set result [::tagsheet::gui::filenotfound_dialog $filename]
+		if {$result == "Cancelled"} {
+			return {}
+		}
+		set errordict [::tagsheet::catchevalfile $filename]
+		if {[dict get $errordict status]=="success"} {
+			return [::tagsheet::getresults]
+		}
 	}
+	# else
+	::tagsheet::gui::errorwindow $filename [dict get $errordict line] [dict get $errordict result]
+	tkwait variable ::tagsheet::gui::results
+	set results $::tagsheet::gui::results
+	destroy .tagsheetw ;# this destroys the original ::tagsheet::gui::results
+	return $results
+}
+
+## Opens a "file not found" dialog where the user can retry locating the requested file.
+## Returns: "Available" (file found while locating again), or "Cancelled".
+proc ::tagsheet::gui::filenotfound_dialog {filename} {
+	set w .tagsheetw
+	destroy $w
+	ttk_toplevel $w
+		wm title $w "Error loading tagsheet"
+		# wm minsize $w
+	ttk::label $w.caption -text "Unable to load tagsheet:"
+		$w.caption configure -font TkCaptionFont
+		pack $w.caption -anchor w -padx 10 -pady 10 -fill x
+	ttk::label $w.error -text "File '$filename' not found"
+		pack $w.error -anchor w -padx 10 -pady {0 10} -fill x
+	ttk::frame $w.buttons
+		pack $w.buttons -padx 10 -pady 10
+	ttk::button $w.retry -text "Retry" -takefocus 0
+		$w.retry configure -command [list ::tagsheet::gui::filenotfound_retry $filename]
+	ttk::button $w.cancel -text "Cancel" -default active -takefocus 0
+		$w.cancel configure -command {set ::tagsheet::gui::result "Cancelled"}
+		pack  $w.retry $w.cancel -in $w.buttons -side left -padx 2
+	bind $w.cancel <Destroy> {
+		if {$::tagsheet::gui::result==""} {set ::tagsheet::gui::result "Cancelled"}
+	}
+	set ::tagsheet::gui::result ""
+	vwait ::tagsheet::gui::result
+	destroy $w
+	return $::tagsheet::gui::result
+}
+# Handler for "Retry" button
+proc ::tagsheet::gui::filenotfound_retry {filename} {
+	set g [wm geometry .tagsheetw]
+	wm state .tagsheetw withdrawn
+	wm state .tagsheetw normal
+	wm geometry .tagsheetw $g
+	if [file exists $filename] {set ::tagsheet::gui::result "Available"}
 }
 
 ## Builds an error window and immediately returns

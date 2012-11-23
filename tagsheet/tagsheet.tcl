@@ -1,15 +1,26 @@
 namespace eval ::tagsheet {}
 namespace eval ::tagsheet::priv {}
 
-## Procedure used for normal cases, where tag definitions are made in a single
-## tagsheet file. (For more complex cases, call init and evalfile manually.)
-
-proc ::tagsheet::evalsinglefile {filename} {
+## Try to read and evaluate a tagsheet in the specified file, on error show
+## a window that allows editing the tagsheet contents.
+## This is the only procedure intended to be called from scripts outside
+## the /tagsheet/ directory.
+## The procedure is in this file instead of gui.tcl to avoid loading all the GUI
+## functions when everything runs okay.
+proc ::tagsheet::evalfile {filename} {
 	::tagsheet::init
-	::tagsheet::evalfile $filename
-	::tagsheet::round-values
-	return [::tagsheet::getresults]
+	set errordict [::tagsheet::catchevalfile $filename]
+	if {[dict get $errordict status]=="success"} {
+		return [::tagsheet::getresults]
+	}
+	# else
+	::tagsheet::gui::handleerror $filename $errordict
 }
+
+
+#proc ::tagsheet::source {filename} {
+#	::tagsheet::outer-interp invokehidden source $filename
+#}
 
 set ::tagsheet::priv::scriptdir [file dirname [info script]]
 
@@ -63,10 +74,6 @@ proc ::tagsheet::init {} {
 
 	## Set up the outer interpreter's data structures (default settings etc.):
 	::tagsheet::outer-interp eval reset
-}
-
-proc ::tagsheet::evalfile {filename} {
-	::tagsheet::outer-interp invokehidden source $filename
 }
 
 ## Try to evaluate tagsheet code directly from the given argument
