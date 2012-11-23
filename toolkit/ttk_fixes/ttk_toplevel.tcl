@@ -33,6 +33,6 @@ proc ::ttk_fixes::toplevel.alt {toplevel} {
 	$toplevel configure -background #d9d9d9
 }
 # Default
-proc ::ttk_fixes::toplevel.default {textwidget} {
+proc ::ttk_fixes::toplevel.default {toplevel} {
 	$toplevel configure -background #d9d9d9
 }
