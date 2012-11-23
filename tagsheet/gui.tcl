@@ -32,19 +32,21 @@ proc ::tagsheet::gui::filenotfound_dialog {filename} {
 	ttk_toplevel $w
 		wm title $w "Error loading tagsheet"
 		# wm minsize $w
-	ttk::label $w.caption -text "Unable to load tagsheet:"
-		$w.caption configure -font TkCaptionFont
-		pack $w.caption -anchor w -padx 10 -pady 10 -fill x
-	ttk::label $w.error -text "File '$filename' not found"
-		pack $w.error -anchor w -padx 10 -pady {0 10} -fill x
-	ttk::frame $w.buttons
-		pack $w.buttons -padx 10 -pady 10
-	ttk::button $w.retry -text "Retry" -takefocus 0
-		$w.retry configure -command [list ::tagsheet::gui::filenotfound_retry $filename]
-	ttk::button $w.cancel -text "Cancel" -default active -takefocus 0
-		$w.cancel configure -command {set ::tagsheet::gui::result "Cancelled"}
-		pack  $w.retry $w.cancel -in $w.buttons -side left -padx 2
-	bind $w.cancel <Destroy> {
+	set wf [ttk::frame $w.content]
+		pack $wf -fill both -expand true
+	ttk::label $wf.caption -text "Unable to load tagsheet:"
+		$wf.caption configure -font TkCaptionFont
+		pack $wf.caption -anchor w -padx 10 -pady 10 -fill x
+	ttk::label $wf.error -text "File '$filename' not found"
+		pack $wf.error -anchor w -padx 10 -pady {0 10} -fill x
+	ttk::frame $wf.buttons
+		pack $wf.buttons -padx 10 -pady 10
+	ttk::button $wf.retry -text "Retry" -takefocus 0
+		$wf.retry configure -command [list ::tagsheet::gui::filenotfound_retry $filename]
+	ttk::button $wf.cancel -text "Cancel" -default active -takefocus 0
+		$wf.cancel configure -command {set ::tagsheet::gui::result "Cancelled"}
+		pack  $wf.retry $wf.cancel -in $wf.buttons -side left -padx 2
+	bind $wf.cancel <Destroy> {
 		if {$::tagsheet::gui::result==""} {set ::tagsheet::gui::result "Cancelled"}
 	}
 	set ::tagsheet::gui::result ""
@@ -54,11 +56,15 @@ proc ::tagsheet::gui::filenotfound_dialog {filename} {
 }
 # Handler for "Retry" button
 proc ::tagsheet::gui::filenotfound_retry {filename} {
-	set g [wm geometry .tagsheetw]
-	wm state .tagsheetw withdrawn
-	wm state .tagsheetw normal
-	wm geometry .tagsheetw $g
-	if [file exists $filename] {set ::tagsheet::gui::result "Available"}
+	if [file exists $filename] {
+		set ::tagsheet::gui::result "Available"
+	} else {
+		# provide visual feedback (window contents disappear/reappear),
+		# saying "Yes, I retried, but there's still nothing"
+		pack forget .tagsheetw.content
+		update; after 100
+		pack .tagsheetw.content -fill both -expand true
+	}
 }
 
 ## Builds an error window and immediately returns
