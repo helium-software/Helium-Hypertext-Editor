@@ -88,6 +88,7 @@ Defines a paragraph style named _\<name\>_ (in source code) resp. _\<displayed n
 | **align**          | Horizontal alignment of the paragraph, possible are `left`, `center`, and `right`. Justification is not available because the Tk text widget does not support it.
 | **bullet**         | Bullet character, e.g. `bullet = ‣`, or `bullet = ""` (do not place a bullet character)
 | **bulletdistance** | Space between bullet character and text (first line). Even if a bullet character is present, the attributes _leftmargin_ and _leftmargin1_ refer to the text. The bullet character is placed _bulletdistance_ px left to the start of the text.
+| **bulletcolor** | Color of the bullet character (foreground)
 
 ### default
 
@@ -299,6 +300,7 @@ Definiert einen Absatz-Stil _\<Name\>_ (im Quelltext) resp. _\<Angezeigter Name\
 | **align**          | Ausrichtung, `left`=linksbündig, `center`=zentriert, `right`=rechtsbündig. Blocksatz ist nicht möglich, da das Tk-Textwidgets diesen nicht unterstützt.
 | **bullet**         | Aufzählungszeichen, Bsp. `bullet = ‣` oder `bullet = ""` (kein Aufzählungszeichen setzen)
 | **bulletdistance** | Abstand des Aufzählungszeichens vom Text (erste Zeile). Wenn ein Aufzählungszeichen vorhanden ist, gelten die Angaben _leftmargin_ und _leftmargin1_ weiterhin für den Abstand des Textes. Das Aufzählungszeichen wird um _bulletdistance_ px links vom Textbeginn ausgegeben.
+| **bulletcolor** | Farbe des Aufzählungszeichens (Vordergrund).
 
 ### default
 

@@ -34,7 +34,7 @@ proc ::tagsheet::textwidget_configure {widget tagdict} {
 # Examples:
 # ::tagsheet::linetag_configure .f.text $::tagdict : RootTag = default
 # ::tagsheet::linetag_configure .f.text $::tagdict : MyTagName = heading1
-# ::tagsheet::linetag_configure .f.text $::tagdict : MyTagNameB = listitem indent 1
+# ::tagsheet::linetag_configure .f.text $::tagdict : MyTagNameN = listitem indent 1
 
 proc ::tagsheet::linetag_configure {widget tagdict : tagname = linetype {INDENT INDENT} {indent 0}} {
 	keyword_check : = INDENT
@@ -52,7 +52,6 @@ proc ::tagsheet::linetag_configure {widget tagdict : tagname = linetype {INDENT 
 	# In the next step, we will add the appropriate number of "duplicates of the last value".
 	set lastindent [lindex $lindents end]
 	incr indentmargin [expr {max(0,$indent-$len) * $lastindent}]
-	# The -lmargin property needs to take care of the bullet (if present).
 	$widget tag configure $tagname \
 		-lmargin2 [+ $indentmargin [dict get $attrs leftmargin]] \
 		-lmargin1 [+ $indentmargin [dict get $attrs leftmargin1]]
@@ -81,7 +80,47 @@ proc ::tagsheet::linetag_configure {widget tagdict : tagname = linetype {INDENT 
 	return $tagname
 }
 
+# bullettag_configure — Applies bullet attributes from a linetag to a specified tag in a textwidget.
+#  Note that the resulting tag does _not_ contain all settings from the surrounding linetag.
+#  In order to have those (e.g. line spacing) working, you must add both the linetag and the
+#  bullettag to the bullet text annotation.
+# Example:
+# ::tagsheet::linetag_configure .f.text $::tagdict : MyTagNameN#bullet = listitem indent 1
+
+proc ::tagsheet::bullettag_configure {widget tagdict : tagname = linetype INDENT indent} {
+	keyword_check : = INDENT
+	## Figure out which settings to use (default or not)
+	if {$linetype == "default"} {
+		set attrs [dict get $tagdict default]
+	} else {
+		set attrs [dict get $tagdict linetypes $linetype]
+	}
+	## Calculate left margin (identical procedure as in linetag_configure)
+	set lindents [dict get $tagdict listindents]
+	set len [llength $lindents]
+	set indentmargin [+ {*}[lrange $lindents 0 $indent-1]]
+	# [lrange] is quite forgiving and tolerates an end-index <0 or >length-1.
+	# In the next step, we will add the appropriate number of "duplicates of the last value".
+	set lastindent [lindex $lindents end]
+	incr indentmargin [expr {max(0,$indent-$len) * $lastindent}]
+
+	## Set color / left margin / alignment tabs:
+	# Line layout: (first tab is required to make bullet right-aligned)
+	# [-lmargin1=0] --tab-> • [leftmargin1-bulletdistance] --tab-> [leftmargin1] content
+	set contentmargin [+ $indentmargin [dict get $attrs leftmargin1]]
+	set bulletdistance [dict get $attrs bulletdistance]
+	$widget tag configure $tagname \
+		-lmargin1 0 -foreground [dict get $attrs bulletcolor] \
+		-tabs [list [- $contentmargin $bulletdistance] right  $contentmargin left]
+
+	## bonus for the caller
+	return $tagname
+}
+
 # inlinetag_configure — Applies inlinetag attributes to a specified tag in a textwidget.
+#  Note that the resulting tag does _not_ contain all settings from the surrounding linetag
+#  ($parenttag). In order to have those (e.g. line spacing) working, you must add both
+#  the linetag and the inlinetag to the text contents.
 # Example: Creating tags for emphasized text inside bold text:
 # ::tagsheet::inlinetag_configure .f.text $::tagdict : h1/bold = bold PARENT h1
 # ::tagsheet::inlinetag_configure .f.text $::tagdict : h1/bold/emph = emph PARENT h1/bold
@@ -124,6 +163,29 @@ proc ::tagsheet::inlinetag_configure {widget tagdict : tagname = inlinetag PAREN
 	## bonus for the caller
 	return $tagname
 }
+
+# makebullet — return bullet string (including tabs), process item number for numbered lists
+proc tagsheet::makebullet {tagdict : linetype itemnumber} {
+	keyword_check :
+	## Figure out which settings to use (default or not)
+	if {$linetype == "default"} {
+		set attrs [dict get $tagdict default]
+	} else {
+		set attrs [dict get $tagdict linetypes $linetype]
+	}
+	## Make the bullet
+	set bullet [dict get $attrs bullet]
+	set numeric $itemnumber
+	set Roman [::tcl::mathfunc::roman $itemnumber]
+	set roman [string tolower $Roman]
+	set Alpha [string index "ABCDEFGHIJKLMNOPQRSTUVWXYZ" [expr {min($itemnumber,26)-1}]]
+	set alpha [string tolower $Alpha]
+	set greek [string index "αβγδεζηθικλμνξοπρςτυφχψωΩ" [expr {min($itemnumber,25)-1}]]
+	set bullet [string map [list 1 $numeric I $roman i $romanl A $alpha a $alphal α $greek] $bullet]
+	return "\t$bullet\t"
+}
+
+## Internally used procedures:
 
 # Creates a font string (like "{DejaVu Sans} 12 bold italic") from tagsheet style parameters
 proc tagsheet::create_fontstring {font size bold italic} {

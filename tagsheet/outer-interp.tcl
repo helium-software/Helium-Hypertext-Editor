@@ -33,7 +33,7 @@ iproc reset {} {
 		bold 0  italic 0  offset 0  underline 0  overstrike 0   \
 		leftmargin 0  leftmargin1 0  rightmargin 0  align left  \
 		topskip 0  bottomskip 0  lineskip 0                     \
-		bulletdistance 0  bullet ""                             ]
+		bulletdistance 0  bullet ""  bulletcolor black          ]
 	dict for {attr value} $::defaults {
 		dict set ::dotattributes default.$attr $value
 	}

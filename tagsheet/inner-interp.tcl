@@ -98,7 +98,7 @@ iproc attr_gettype {attr} {
 		 { if {$::MODE != "inlinetag"} {return Number} else {
 			error "attribute \"$attr\" is not allowed in inlinetag definitions"
 		 } }
-		align - bullet
+		align - bullet - bulletcolor
 		 { if {$::MODE != "inlinetag"} {return String} else {
 			error "attribute \"$attr\" is not allowed in inlinetag definitions"
 		 } }
