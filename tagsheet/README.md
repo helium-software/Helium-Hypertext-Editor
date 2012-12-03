@@ -17,6 +17,7 @@ Synopsis
    * [padding](#padding)
    * [selection](#selection)
    * [cursor](#cursor)
+   * [reset](#reset)
 * [Attribute Definitions](#attribute-definitions)
    * [References](#references)
    * [Literal Values; Operators](#literal-values-operators)
@@ -142,12 +143,18 @@ Defines the appearance of the blinking insertion cursor. The following attribute
 
 References of types _default.\<attr\>_ and _\<linetype\>.\<attr\>_ are accepted, as well as referring to previously set attributes, as in `ontime = 500; offtime = ontime - 200`.
 
+### reset
+
+Syntax: `reset`
+
+This "parasitic" (not originally intended to be part of the tagsheet language) command discards any settings that have been done above it. It could become useful for tagsheet debugging, as it allows for single-feature tests at the bottom of a file without deleting (i.e. moving into editing history) its normal contents. In other situations, using `if 0 { }` may be more suitable.
+
 
 Attribute Definitions
 ---------------------
 
 This section describes the syntax of the _{ attribute definitions }_ field that has been mentioned in the previous sections.<br>
-_For a short overview, see the [German version](attribut-definitionen) below._
+_For a short overview, see the [German version](#attribut-definitionen) below._
 
 Between the curly braces (see the [Example](#example)), an arbitrary number of attribute definitions can be specified, either each on an individual line, or multiple definitions on one line, separated by semicolons.
 
@@ -221,6 +228,7 @@ Das Native Datenformat sieht die _Verwendung_ beliebiger Absatz- und Zeichenstil
    * [padding](#padding-1)
    * [selection](#selection-1)
    * [cursor](#cursor-1)
+   * [reset](#reset-1)
 * [Attribut-Definitonen](#attribut-definitionen)
 
 
@@ -346,11 +354,17 @@ Definiert das Aussehen der blinkenden Einfügemarke. Folgende Attribute werden u
 
 Referenzen der Typen _default.\<attr\>_ und _\<linetype\>.\<attr\>_ sind erlaubt, sowie Bezug auf bereits gesetzte Attribute, Bsp. `ontime = 500; offtime = ontime - 200`.
 
+### reset
+
+Syntax: `reset`
+
+Dieser "parasitische" (ursprünglich nicht für die Tagsheet-Sprache gedachte) Befehl annulliert alle Einstellungen, die oberhalb von seinem Aufruf getätigt wurden. Er kann nützlich sein für die Fehlersuche in Tagsheets, da er es ermöglicht, einzelne Einstellungen am Ende der Tagsheet-Datei zu testen, ohne den üblichen Inhalt des Tagsheet zu löschen. Eine Alternative hierzu ist `if 0 { }`.
+
 
 Attribut-Definitionen
 ---------------------
 
-_Dies ist eine kurze Übersicht. Für Details siehe die [englische Version](attribute-definitions)._
+_Dies ist eine kurze Übersicht. Für Details siehe die [englische Version](#attribute-definitions)._
 
 * In default:
     * Keine Referenzen, ausser auf vorher definierte andere Attribute (z.B. `italic = yes; bold = italic`)

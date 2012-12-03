@@ -1,0 +1,14 @@
+padding {x = 4; y = 2}
+
+linetype before-reset "Before Reset" {
+	font = wrong
+	color = Wroong
+}
+
+# Uncomment next line:
+#reset
+
+linetype after-reset "After Reset" {
+	font = sans-serif
+	color = white
+}
