@@ -79,8 +79,8 @@ Defines a paragraph style named _\<name\>_ (in source code) resp. _\<displayed n
 
 | Attribute          | Signification
 | ------------------ | -------------
-| **leftmargin**     | Left margin in px. If the element is indented (indent level > 0), the specification is relative to the indenting, otherwise to the left border of the text widget. Negative values are allowed.
-| **leftmargin1**    | Left margin of the first line. If unspecified, _leftmargin_ is used. The value is likewise relative to the indenting resp. the widget border. Using _leftmargin_ as a reference is possible, e.g. `leftmargin1 = leftmargin + 12`.
+| **leftmargin**     | Left margin in px. If the element is indented (indent level > 0), the specification is relative to the indenting, otherwise to the left border of the text widget. Negative values are allowed. <br>Setting _leftmargin_ **automatically overwrites** _leftmargin1_ with the same value.
+| **leftmargin1**    | Left margin of the first line, must be specified **after _leftmargin_**. The value is likewise relative to the indenting resp. the widget border. Using _leftmargin_ as a reference is possible, e.g. `leftmargin1 = leftmargin + 12`.
 | **rightmargin**    | Right margin (in px), applies to all lines of the paragraph.
 | **topskip**        | Vertical distance from the previous paragraph (in px)
 | **bottomskip**     | Vertical distance to the next paragraph (in px). _topskip_ and _bottomskip_ of subsequent paragraphs do not merge.
@@ -290,8 +290,8 @@ Definiert einen Absatz-Stil _\<Name\>_ (im Quelltext) resp. _\<Angezeigter Name\
 
 | Attribut           | Bedeutung
 | ------------------ | ---------
-| **leftmargin**     | Linker Rand, Angabe in px. Falls das Element eingerückt ist (Einrückungsstufe > 0), ist die Angabe relativ zu (Einrückungsstufe * Einrückung), sonst zum linken Fensterrand. Negative Werte sind möglich.
-| **leftmargin1**    | Einzug der ersten Zeile. Falls nicht angegeben, wird _leftmargin_ übernommen. Die Angabe bezieht sich ebenfalls auf den Einrückungsabstand bzw. den linken Fensterrand. Bezug auf _leftmargin_ ist möglich durch z.B. `leftmargin1 = leftmargin + 12`.
+| **leftmargin**     | Linker Rand, Angabe in px. Falls das Element eingerückt ist (Einrückungsstufe > 0), ist die Angabe relativ zu (Einrückungsstufe * Einrückung), sonst zum linken Fensterrand. Negative Werte sind möglich. <br>Eine Angabe von _leftmargin_ **überschreibt** gleichzeitig auch das Attribut _leftmargin1_ mit dem selben Wert.
+| **leftmargin1**    | Einzug der ersten Zeile, muss **nach _leftmargin_** gesetzt werden. Die Angabe bezieht sich ebenfalls auf den Einrückungsabstand bzw. den linken Fensterrand. Bezug auf _leftmargin_ ist möglich durch z.B. `leftmargin1 = leftmargin + 12`.
 | **rightmargin**    | Rechter Rand (in px), gültig für alle Zeilen des Absatzes.
 | **topskip**        | Abstand vom vorhergehenden Absatz (in px)
 | **bottomskip**     | Abstand zum nachfolgenden Absatz (in px). _topskip_ und _bottomskip_ aufeinanderfolgender Absätze verschmelzen nicht.

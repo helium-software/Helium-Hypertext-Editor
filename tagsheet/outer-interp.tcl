@@ -246,9 +246,19 @@ iproc attr_set {attr expr} {
 	"default" {
 		dict set ::defaults $attr $expr
 		dict set ::dotattributes default.$attr $expr
+		# leftmargin -> leftmargin1 coupling:
+		if {$attr=="leftmargin"} {
+			dict set ::defaults leftmargin1 $expr
+			dict set ::dotattributes default.leftmargin1 $expr
+		}
 	} "linetype" {
 		dict set ::linetypes $::name $attr $expr
 		dict set ::dotattributes $::name.$attr $expr
+		# leftmargin -> leftmargin1 coupling:
+		if {$attr == "leftmargin"} {
+			dict set ::linetypes $::name leftmargin1 $expr
+			dict set ::dotattributes $::name.leftmargin1 $expr
+		}
 	} "inlinetag" {
 		dict set ::inlinetags $::name $attr $expr
 	} "padding" {

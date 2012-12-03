@@ -1,0 +1,16 @@
+default {
+	leftmargin = 20
+	# see that leftmargin1 is also set to 20
+}
+linetype wrong "Wrong sequence" {
+	leftmargin1 = 42
+	leftmargin = 25
+}
+linetype right "Right sequence" {
+	leftmargin = 25
+	leftmargin1 = 42
+}
+linetype rel "Relative setting" {
+	leftmargin = 20
+	leftmargin1 = leftmargin + 8
+}
