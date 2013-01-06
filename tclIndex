@@ -30,6 +30,7 @@ set auto_index(::tagsheet::textwidget_configure) [list source [file join $dir . 
 set auto_index(::tagsheet::linetag_configure) [list source [file join $dir . tagsheet textwidget.tcl]]
 set auto_index(::tagsheet::bullettag_configure) [list source [file join $dir . tagsheet textwidget.tcl]]
 set auto_index(::tagsheet::inlinetag_configure) [list source [file join $dir . tagsheet textwidget.tcl]]
+set auto_index(::tagsheet::bullet_type) [list source [file join $dir . tagsheet textwidget.tcl]]
 set auto_index(::tagsheet::makebullet) [list source [file join $dir . tagsheet textwidget.tcl]]
 set auto_index(::tagsheet::create_fontstring) [list source [file join $dir . tagsheet textwidget.tcl]]
 set auto_index(::tagsheet::parse_fontstring) [list source [file join $dir . tagsheet textwidget.tcl]]

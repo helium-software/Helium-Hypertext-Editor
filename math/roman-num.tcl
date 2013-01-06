@@ -1,4 +1,5 @@
-
+# Converts an integer to a roman numeral
+# from http://wiki.tcl.tk/1823
 proc ::tcl::mathfunc::roman {i} {
         set res ""
         foreach {value roman} {
@@ -9,4 +10,4 @@ proc ::tcl::mathfunc::roman {i} {
                 }
         }
         set res
- }
+}

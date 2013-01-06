@@ -15,7 +15,7 @@ proc ::tagsheet::textwidget_configure {widget tagdict} {
 	# The "alpha" attribute is used directly from the tagdict in the procedures
 	# linetag_configure / inlinetag_configure, which create the corresponding #sel tags.
 	set background [dict get $tagdict selection color]
-	set foreground [dict get $tagdict default color]
+	set foreground [dict get $tagdict defaults color]
 	$widget configure -selectbackground $background -selectforeground $foreground \
 		-inactiveselectbackground $background -inactiveselectbackground $foreground
 	## apply attributes from "cursor" section
@@ -25,6 +25,10 @@ proc ::tagsheet::textwidget_configure {widget tagdict} {
 		-insertontime [dict get $tagdict cursor ontime] \
 		-insertofftime [dict get $tagdict cursor offtime] \
 		-insertborderwidth 0
+	## apply attributes from "default" section
+	# The background needs to be set for the whole widget in order to use it
+	# for empty area at the bottom and in the padding frame.
+	$widget configure -background [dict get $tagdict defaults background]
 }
 
 # linetag_configure — Applies linetype attributes to a specified tag in a textwidget.
@@ -40,9 +44,11 @@ proc ::tagsheet::linetag_configure {widget tagdict : tagname = linetype {INDENT 
 	keyword_check : = INDENT
 	## Figure out which settings to use (default or not)
 	if {$linetype == "default"} {
-		set attrs [dict get $tagdict default]
+		set attrs [dict get $tagdict defaults]
 	} else {
-		set attrs [dict get $tagdict linetypes $linetype]
+		# Merge linetag with default attributes; otherwise some attributes (those that
+		# aren't modified by the linetag specification) would be missing
+		set attrs [dict merge [dict get $tagdict defaults] [dict get $tagdict linetypes $linetype]]
 	}
 	## Calculate and set left margin
 	set lindents [dict get $tagdict listindents]
@@ -61,7 +67,7 @@ proc ::tagsheet::linetag_configure {widget tagdict : tagname = linetype {INDENT 
 		underline -underline  overstrike -overstrike
 		offset -offset
 		color -foreground  background -background
-		#
+		
 		rightmargin -rmargin
 		topskip -spacing1  bottomskip -spacing3  lineskip -spacing2
 		align -justify
@@ -91,9 +97,11 @@ proc ::tagsheet::bullettag_configure {widget tagdict : tagname = linetype INDENT
 	keyword_check : = INDENT
 	## Figure out which settings to use (default or not)
 	if {$linetype == "default"} {
-		set attrs [dict get $tagdict default]
+		set attrs [dict get $tagdict defaults]
 	} else {
-		set attrs [dict get $tagdict linetypes $linetype]
+		# Merge linetag with default attributes; otherwise some attributes (those that
+		# aren't modified by the linetag specification) would be missing
+		set attrs [dict merge [dict get $tagdict defaults] [dict get $tagdict linetypes $linetype]]
 	}
 	## Calculate left margin (identical procedure as in linetag_configure)
 	set lindents [dict get $tagdict listindents]
@@ -138,11 +146,15 @@ proc ::tagsheet::inlinetag_configure {widget tagdict : tagname = inlinetag PAREN
 
 	## Apply inlinetag attribute set
 	set tag_exprs [dict get $tagdict inlinetags $inlinetag]
-	dict with $parent_attrs {
+	dict with parent_attrs {
 		# parent attributes are now available as $size etc.
 		foreach attr [dict keys $parent_attrs] {
 			# evaluate expressions like {$size + 4} from the tagsheet
-			dict set new_attrs $attr [expr [dict get $tag_exprs $attr]]
+			if {[dict exists $tag_exprs $attr]} {
+				dict set new_attrs $attr [expr [dict get $tag_exprs $attr]]
+			} else {
+				dict set new_attrs $attr [get $attr]
+			}
 	}	}
 
 	## Set attributes of new tag
@@ -159,9 +171,34 @@ proc ::tagsheet::inlinetag_configure {widget tagdict : tagname = inlinetag PAREN
 			[dict get $new_attrs font] \
 			[::tcl::mathfunc::round [dict get $new_attrs size]] \
 			[dict get $new_attrs bold] [dict get $new_attrs italic]
-	}
+	]
 	## bonus for the caller
 	return $tagname
+}
+
+# bullet_type — examine the bullet attribute of a given line type
+# Return values:
+#   * "none" = there is no bullet
+#   * "static" = bullet without item number part (e.g. "-")
+#   * "numbered" = bullet that varies with item number (e.g. "1.")
+# The distinction between "static" and "numbered" is important, as for non-numbered bullets
+# (probably >50% of all cases), the layout system does not need to update all other paragraphs
+# when one paragraph is inserted.
+proc tagsheet::bullet_type {tagdict : linetype} {
+	keyword_check :
+	if {$linetype== "default"} {
+		set bullet [dict get $tagdict defaults bullet]
+		if {$bullet==""} {return none}
+	} elseif {[dict exists $tagdict linetypes $linetype bullet]} {
+		set bullet [dict get $tagdict linetypes $linetype bullet]
+	} else {
+		return none
+	}
+	if {[string match {*[1IiAaα]*} $bullet]} {
+		return numbered
+	} else {
+		return static
+	}
 }
 
 # makebullet — return bullet string (including tabs), process item number for numbered lists
@@ -169,19 +206,26 @@ proc tagsheet::makebullet {tagdict : linetype itemnumber} {
 	keyword_check :
 	## Figure out which settings to use (default or not)
 	if {$linetype == "default"} {
-		set attrs [dict get $tagdict default]
+		set attrs [dict get $tagdict defaults]
 	} else {
+		# Merge linetag with default attributes; otherwise some attributes (those that
+		# aren't modified by the linetag specification) would be missing
+		set attrs [dict merge [dict get $tagdict defaults] [dict get $tagdict linetypes $linetype]]
 		set attrs [dict get $tagdict linetypes $linetype]
 	}
 	## Make the bullet
 	set bullet [dict get $attrs bullet]
-	set numeric $itemnumber
-	set Roman [::tcl::mathfunc::roman $itemnumber]
-	set roman [string tolower $Roman]
-	set Alpha [string index "ABCDEFGHIJKLMNOPQRSTUVWXYZ" [expr {min($itemnumber,26)-1}]]
-	set alpha [string tolower $Alpha]
-	set greek [string index "αβγδεζηθικλμνξοπρςτυφχψωΩ" [expr {min($itemnumber,25)-1}]]
-	set bullet [string map [list 1 $numeric I $roman i $romanl A $alpha a $alphal α $greek] $bullet]
+	if {[string match {*[1IiAaα]*} $bullet]} {
+		set numeric $itemnumber
+		set Roman [::tcl::mathfunc::roman $itemnumber]
+		set roman [string tolower $Roman]
+		set Alpha [string index "ABCDEFGHIJKLMNOPQRSTUVWXYZ" [expr {min($itemnumber,26)-1}]]
+		set alpha [string tolower $Alpha]
+		set greek [string index "αβγδεζηθικλμνξοπρςτυφχψωΩ" [expr {min($itemnumber,25)-1}]]
+		set bullet [string map \
+			[list 1 $numeric I $Roman i $roman A $Alpha a $alpha α $greek] \
+		  $bullet]
+		}
 	return "\t$bullet\t"
 }
 

@@ -86,8 +86,8 @@ Defines a paragraph style named _\<name\>_ (in source code) resp. _\<displayed n
 | **bottomskip**     | Vertical distance to the next paragraph (in px). _topskip_ and _bottomskip_ of subsequent paragraphs do not merge.
 | **lineskip**       | Vertical space between lines of the same paragraph. The specified value (in px) is added to the line spacing provided by the font.
 | **align**          | Horizontal alignment of the paragraph, possible are `left`, `center`, and `right`. Justification is not available because the Tk text widget does not support it.
-| **bullet**         | Bullet character, e.g. `bullet = ‣`, or `bullet = ""` (do not place a bullet character)
-| **bulletdistance** | Space between bullet character and text (first line). Even if a bullet character is present, the attributes _leftmargin_ and _leftmargin1_ refer to the text. The bullet character is placed _bulletdistance_ px left to the start of the text.
+| **bullet**         | Bullet character, e.g. `bullet = ‣`, or `bullet = ""` (do not place a bullet character). <br>For numbered lists, include a "one" in the appropriate format, i.e.: <br>"1" for numeric; "A"/"a" for upper/lower alphabetic; "I"/"i" for upper/lower roman; "α" for lower greek. Example: `bullet = "a)"`
+| **bulletdistance** | Space between bullet character and text (first line). Even if a bullet character is present, the attributes _leftmargin_ and _leftmargin1_ refer to the text. The bullet character is placed _bulletdistance_ px left to the start of the text. Choose a distance of at least 7 px, otherwise the Tk text widget will damage the text alignment, because it imposes a minimum width of tab characters.
 | **bulletcolor** | Color of the bullet character (foreground)
 
 ### default
@@ -298,8 +298,8 @@ Definiert einen Absatz-Stil _\<Name\>_ (im Quelltext) resp. _\<Angezeigter Name\
 | **bottomskip**     | Abstand zum nachfolgenden Absatz (in px). _topskip_ und _bottomskip_ aufeinanderfolgender Absätze verschmelzen nicht.
 | **lineskip**       | Abstand zwischen Zeilen innerhalb des Absatzes. Die Angabe (in px) wird zum vom Font vorgegebenen Zeilenabstand addiert.
 | **align**          | Ausrichtung, `left`=linksbündig, `center`=zentriert, `right`=rechtsbündig. Blocksatz ist nicht möglich, da das Tk-Textwidgets diesen nicht unterstützt.
-| **bullet**         | Aufzählungszeichen, Bsp. `bullet = ‣` oder `bullet = ""` (kein Aufzählungszeichen setzen)
-| **bulletdistance** | Abstand des Aufzählungszeichens vom Text (erste Zeile). Wenn ein Aufzählungszeichen vorhanden ist, gelten die Angaben _leftmargin_ und _leftmargin1_ weiterhin für den Abstand des Textes. Das Aufzählungszeichen wird um _bulletdistance_ px links vom Textbeginn ausgegeben.
+| **bullet**         | Aufzählungszeichen, Bsp. `bullet = ‣` oder `bullet = ""` (kein Aufzählungszeichen setzen). <br>Für nummerierte Listen ist eine Eins im gewünschten Format einzufügen, also: <br>"1" für Zahlen; "A"/"a" für Gross-/Kleinbuchstaben; "I"/"i" für grosse/kleine römische Zahlen; "α" für griechische Kleinbuchstaben. Beispiel: `bullet = "a)"`
+| **bulletdistance** | Abstand des Aufzählungszeichens vom Text (erste Zeile). Wenn ein Aufzählungszeichen vorhanden ist, gelten die Angaben _leftmargin_ und _leftmargin1_ weiterhin für den Abstand des Textes. Das Aufzählungszeichen wird um _bulletdistance_ px links vom Textbeginn ausgegeben. Es sollte eine Distanz von mindestens 7 px gewählt werden, weil das Tk-Textwidget eine minimale Breite von Tabulatorzeichen vorschreibt und somit die Ausrichtung des Textes beeinträchtigen würde.
 | **bulletcolor** | Farbe des Aufzählungszeichens (Vordergrund).
 
 ### default
