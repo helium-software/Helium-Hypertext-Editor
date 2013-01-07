@@ -12,12 +12,13 @@ proc ::tagsheet::textwidget_configure {widget tagdict} {
 	## apply attributes from "padding" section
 	$widget configure -padx [dict get $tagdict padding x] -pady [dict get $tagdict padding y]
 	## apply attributes from "selection" section
-	# The "alpha" attribute is used directly from the tagdict in the procedures
-	# linetag_configure / inlinetag_configure, which create the corresponding #sel tags.
-	set background [dict get $tagdict selection color]
-	set foreground [dict get $tagdict defaults color]
-	$widget configure -selectbackground $background -selectforeground $foreground \
-		-inactiveselectbackground $background -inactiveselectbackground $foreground
+	::tk_text::setselectcolor $widget [dict get $tagdict selection color]
+	::tk_text::setalpha $widget [dict get $tagdict selection alpha]
+	# (The -selectbackground -selectforeground attributes will be set in
+	# ::tagsheet::linetag_configure when linetype is "default".)
+	if {"TextSelMechanism" ni [bindtags $widget]} {
+		bindtag_add $widget TextSelMechanism
+	}
 	## apply attributes from "cursor" section
 	$widget configure \
 		-insertbackground [dict get $tagdict cursor color] \
@@ -82,6 +83,17 @@ proc ::tagsheet::linetag_configure {widget tagdict : tagname = linetype {INDENT 
 			[::tcl::mathfunc::round [dict get $attrs size]] \
 			[dict get $attrs bold] [dict get $attrs italic]
 	]
+	## Set up selection tag
+	::tk_text::makeseltag $widget $tagname
+	# Take over the properties for the whole widget
+	if {$linetype=="default"} {
+		set background [$widget tag cget "$tagname#sel" -background]
+		set foreground [$widget tag cget $tagname -foreground]
+		$widget configure \
+			-selectforeground $foreground \
+			-selectbackground $background \
+			-inactiveselectbackground $background
+	}
 	## bonus for the caller
 	return $tagname
 }

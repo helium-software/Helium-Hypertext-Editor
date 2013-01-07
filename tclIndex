@@ -65,6 +65,7 @@ set auto_index(::tk_text::selectionTest) [list source [file join $dir . toolkit 
 set auto_index(::tk_text::selectionUpdateTags) [list source [file join $dir . toolkit text-selection.tcl]]
 set auto_index(::tk_text::makeseltag) [list source [file join $dir . toolkit text-selection.tcl]]
 set auto_index(::tk_text::setalpha) [list source [file join $dir . toolkit text-selection.tcl]]
+set auto_index(::tk_text::setselectcolor) [list source [file join $dir . toolkit text-selection.tcl]]
 set auto_index(bindtag_add) [list source [file join $dir . toolkit bindtags.tcl]]
 set auto_index(ttk_toplevel) [list source [file join $dir . toolkit ttk_fixes ttk_toplevel.tcl]]
 set auto_index(::ttk_fixes::toplevel.clam) [list source [file join $dir . toolkit ttk_fixes ttk_toplevel.tcl]]
