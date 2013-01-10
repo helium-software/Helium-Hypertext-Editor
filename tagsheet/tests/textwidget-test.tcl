@@ -15,10 +15,10 @@ namespace import ::tcl::mathop::*
 
 ## Set up the widgets
 pack [ttk::panedwindow .pw] -fill both -expand true -padx 1 -pady 1
-.pw add [ttk_text .tagsheet -height 20]
+.pw add [ttk_text .tagsheet -height 15]
 ttk_text_scrollbar .tagsheet on
 .pw add [ttk::frame .frame]
-pack [ttk_text .rendering -height 7] -in .frame -fill both -expand true 
+pack [ttk_text .rendering -height 15] -in .frame -fill both -expand true 
 ttk_text_scrollbar .rendering on
 ttk::button .renderbutton -text "Update (Ctrl-R)" -takefocus 0
 pack .renderbutton -in .frame -side top -anchor e -before .rendering_frame -pady {0 2}
@@ -50,17 +50,17 @@ linetype fline "Formatted Line" {
 	size = default.size * 2
 	align = center
 }
+inlinetag span "Inline span" {
+	size /= 1.13
+	italic toggle
+	bold = not italic
+}
 listindents +9 +18
 linetype list "List element" {
 	leftmargin = 20
 	bullet = #
 	bulletcolor = orange
 	bulletdistance = 10
-}
-inlinetag span "Inline span" {
-	size += 3
-	italic toggle
-	bold = not italic
 }
 }
 ## evaluate it (and make a procedure for later use)
@@ -102,6 +102,11 @@ proc insert_text {} {
 	$w insert end \
 		"Formatted line (fline).\n" fline
 	$w insert end \
+		"This is again a default-style paragraph.\n" RootTag
+	$w insert end \
+		"Inline formatting: " RootTag "span " {RootTag span0} "span " {RootTag span1} \
+		"span " {RootTag span2} "span.\n" {RootTag span3}
+	$w insert end \
 		[tagsheet::makebullet $t : list 1] {list1 list1.bullet} \
 		"First outer list item: one two three four five six seven eight nine ten eleven" list1 \
 		" twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty\n" list1
@@ -112,9 +117,7 @@ proc insert_text {} {
 	$w insert end \
 		[tagsheet::makebullet $t : list 2] {list1 list1.bullet} \
 		"Second outer list item\n" list1
-	$w insert end \
-		"Inline formatting: " RootTag "span " {RootTag span0} "span " {RootTag span1} \
-		"span " {RootTag span2} "span." {RootTag span3}
+	$w insert end "Second paragraph of second list item" list1
 }
 insert_text
 
