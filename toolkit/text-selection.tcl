@@ -164,7 +164,7 @@ proc ::tk_text::makeseltag {widget tagname} {
 		set selcolor [$widget cget -selectbackground]
 	}
 	
-	set blend [::colorcalc::alphablendstrings $selcolor $tagcolor $alpha]
+	set blend [::colorcalc::alphablendstrings $tagcolor $selcolor $alpha]
 
 	# create the specific selection tag
 	$widget tag configure "$tagname#sel" -background $blend

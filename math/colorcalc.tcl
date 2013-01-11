@@ -18,7 +18,7 @@ proc ::colorcalc::tostring {color} {
 }
 
 # calculates "alpha*foreground + (1-alpha)*background"
-proc ::colorcalc::alphablend {foreground background alpha} {
+proc ::colorcalc::alphablend {background foreground alpha} {
 	foreach i {0 1 2} {
 		lappend result [expr {
 			$alpha*[lindex $foreground $i]
@@ -28,6 +28,10 @@ proc ::colorcalc::alphablend {foreground background alpha} {
 	return $result
 }
 # same as above, works directly on color strings
-proc ::colorcalc::alphablendstrings {foreground background alpha} {
-	tostring [alphablend [fromstring $foreground] [fromstring $background] $alpha]
+proc ::colorcalc::alphablendstrings {background foreground alpha} {
+	tostring [alphablend [fromstring $background] [fromstring $foreground] $alpha]
+}
+# export it as a math function "alphablend"
+proc ::tcl::mathfunc::alphablend {background foreground alpha} {
+	::colorcalc::alphablendstrings $background $foreground $alpha
 }
