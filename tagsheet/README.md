@@ -190,7 +190,7 @@ Each attribute definition can be one of the following types:
 | `<linetype>.<attr>` | Value of _\<attr\>_ as set in the definition of _\<linetype\>_ | inlinetag, linetype |
 | `<attr>` | Value of _\<attr\>_ as defined before | default |
 
-All references except _default.\<attr\>_ are evaluated in a single pass, while the tagsheet is being read into the interpreter. This means that each reference will access the corresponding attribute value as it has been set by all the preceding attribute definitions.  Circular references like `a=b; b=a` are therefore impossible, since the first statement tries to access `b` which is unknown at this time (or it sets `a` to the default value for `b` if that exists). This is typical **imperative semantics; Tagsheets are not purely declarative.**
+All references except _parent.\<attr\>_ are evaluated in a single pass, while the tagsheet is being read into the interpreter. This means that each reference will access the corresponding attribute value as it has been set by all the preceding attribute definitions.  Circular references like `a=b; b=a` are therefore impossible, since the first statement tries to access `b` which is unknown at this time (or it sets `a` to the default value for `b` if that exists). This is typical **imperative semantics; Tagsheets are not purely declarative.**
 
 ### Literal Values; Operators
 
