@@ -54,6 +54,8 @@ inlinetag span "Inline span" {
 	size /= 1.13
 	italic toggle
 	bold = not italic
+	#color = blue if parent.color = black
+	#color = black if parent.color = blue
 }
 listindents +9 +18
 linetype list "List element" {

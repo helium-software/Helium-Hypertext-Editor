@@ -1,0 +1,19 @@
+inlinetag toggleblue "Toggle Blue" {
+	color = blue  if parent.color = black
+	color = black  if parent.color = blue
+
+	color = yellow  if parent.color = orange and parent.italic = true
+}
+
+inlinetag togglesize "Toggle Size" {
+	size = 20 if parent.size = 10
+	size = 10 if parent.size = 20
+
+	size = 50 if parent.size = 40 and parent.italic = true
+}
+
+inlinetag maze "Expression Labyrinth" {
+	offset *= 5
+	size = 20 if parent.size = offset
+	size = offset if parent.offset = offset
+}

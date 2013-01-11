@@ -167,41 +167,12 @@ iproc attr_set {attr expr} {
 		# substitute color, width, ontime, offtime
 		set expr [string map $::cursor $expr]
 	}}
-	## handle "if" clause
+	## handle "if" clause (1st part: split $expr)
 	set if_pos [string first " if " $expr]
 	if {$if_pos != -1} {
 		set cond [string range $expr $if_pos+4  end]
 		set expr [string range $expr 0    $if_pos-1]
-		# translate logical constants and operators to "C" style
-		# (expr does not provide calculations with yes and friends)
-		set cond [string map {
-			" xor " ^  " and " &  " or " |  "not " !
-			" = " ==  ≠ !=  ≥ >=  ≤ <=
-			yes 1 no 0 on 1 off 0 true 1 false 0
-		} $cond]
-		# if we can (no parent references), calculate $cond and abort if it isn't true
-		if {[string first {$} $cond] == -1} {
-			# quote anything that looks like a string (meaning of the regular expression:
-			#  Match a sequence of "non-operator-sign" characters whose first is not a digit.
-			#  Additionally, the regexp takes care of omitting leading/trailing spaces.)
-			set cond [regsub -all {[[:<:]][^-+*/%~!=<>&|?:^0-9][^-+*/%~!=<>&|?:^]+[[:>:]]} $cond {"\0"}]
-			set cond [expr $cond]
-			if {!$cond} {return}
-		# otherwise run a test against sample default values:
-		} else {
-			set size 12; set offset 0
-			set bold 0; set italic 0; set underline 0; set overstrike 0
-			set font "Sans"; set color "#abcdef"; set background "#012345"
-			if {[catch {expr $expr}]} {
-				error "invalid expression syntax in \"if\" condition"
-			}
-		# and include $cond into $expr:
-		# (we can't abort setting the attribute inside our expression, so
-		#  if the condition is false, take the parent attribute)
-			set expr "(($cond) ? ($expr) : \$attr)"
-		}
 	}
-	
 	## calculate the resulting attribute, depending on its type
 	switch $type {
 	String {
@@ -241,6 +212,61 @@ iproc attr_set {attr expr} {
 			set expr "($expr)"
 		}
 	}}
+	## handle "if" clause (2nd part)
+	if {$if_pos != -1} {
+		# translate logical constants and operators to "C" style
+		# (expr does not provide calculations with yes and friends)
+		set cond [string map {
+			" xor " ^  " and " &  " or " |  "not " !
+			" = " ==  ≠ !=  ≥ >=  ≤ <=
+		} $cond]
+		foreach {word value} {yes 1 no 0 on 1 off 0 true 1 false 0} {
+			# The following approach with regsub word-start and word-end marks
+			# avoids e.g. "Caslon" being substituted with "Casl1".
+			set cond [regsub -all "\[\[:<:\]\]$word\[\[:>:\]\]" $cond $value]
+		}
+		# quote anything that looks like a string (meaning of the regular expression:
+		#  Match a sequence of "non-operator-sign" characters whose first is not a digit.
+		#  Additionally, the regexp takes care of omitting leading/trailing spaces.)
+		#  Words that start with " or $ are left unchanged.
+		set cond [regsub -all \
+			{(^|[^$])([[:<:]][^-+*/%~!=<>&|?:^0-9"][^-+*/%~!=<>&|?:^]+[[:>:]])} \
+			$cond {\1"\2"}]
+		# if we can (no parent references), calculate $cond and abort if it isn't true
+		if {[string first {$} $cond] == -1} {
+			set cond [expr $cond]
+			if {!$cond} {return}
+		# otherwise [occurs only in inlinetag blocks] run a test against sample default values:
+		} else {
+			set size 12; set offset 0
+			set bold 0; set italic 0; set underline 0; set overstrike 0
+			set font "Sans"; set color "#abcdef"; set background "#012345"
+			if {[catch {expr $cond}]} {
+				error "invalid expression syntax in \"if\" condition"
+			}
+		# and include $cond into $expr:
+		# (we can't abort setting the attribute inside our expression, so
+		#  if the condition is false, take the parent attribute - or the result
+		#  of the previous assignments)
+		# For the latter case, consider:
+		# 	color = blue if parent.color = black
+		# 	color = black if parent.color = blue
+		# These two lines should work like
+		# 	color = cond(parent.color=black, blue, parent.color=blue, black)
+		# Without the following $else_value setting, the second assignment
+		# would completely supersede the first.
+			if {[dict exists $::inlinetags $::name $attr]} {
+				set else_value [dict get $::inlinetags $::name $attr]
+			} else {
+				set else_value "\$$attr"
+			}
+			if {$type == "String"} {
+				set expr "(($cond) ? (\"$expr\") : $else_value)"
+			} else {
+				set expr "(($cond) ? ($expr) : $else_value)"
+			}
+		}
+	}
 	## store the resulting attribute ($expr) in the appropriate place
 	switch $::context {
 	"default" {
@@ -260,6 +286,7 @@ iproc attr_set {attr expr} {
 			dict set ::dotattributes $::name.leftmargin1 $expr
 		}
 	} "inlinetag" {
+		# TODO: make always "expr-able" even for string attributes
 		dict set ::inlinetags $::name $attr $expr
 	} "padding" {
 		dict set ::padding $attr $expr

@@ -34,7 +34,7 @@ place [ttk::menubutton .load -text "Load" -takefocus 0] -in .tagsheet -x 2 -y 2 
 proc .load.update [list [list info_script [info script]]] {
 	.load.menu delete 0 end
 	set dir [file join [file dirname $info_script] tagsheets]
-	foreach tagsheet [glob -nocomplain -directory $dir *.tagsheet] {
+	foreach tagsheet [lsort [glob -nocomplain -directory $dir *.tagsheet]] {
 		.load.menu add command -label [file rootname [file tail $tagsheet]] -command "
 			[list load_tagsheet $tagsheet]
 		"
