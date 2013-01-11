@@ -286,7 +286,11 @@ iproc attr_set {attr expr} {
 			dict set ::dotattributes $::name.leftmargin1 $expr
 		}
 	} "inlinetag" {
-		# TODO: make always "expr-able" even for string attributes
+		# make "bare" string attributes work when $expr is
+		# evaluated using the expr command
+		if {[catch {expr $expr}]} {
+			set expr "\"$expr\""
+		}
 		dict set ::inlinetags $::name $attr $expr
 	} "padding" {
 		dict set ::padding $attr $expr
