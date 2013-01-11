@@ -158,15 +158,12 @@ proc ::tagsheet::inlinetag_configure {widget tagdict : tagname = inlinetag PAREN
 
 	## Apply inlinetag attribute set
 	set tag_exprs [dict get $tagdict inlinetags $inlinetag]
+	set new_attrs [dict create]
 	dict with parent_attrs {
 		# parent attributes are now available as $size etc.
-		foreach attr [dict keys $parent_attrs] {
-			# evaluate expressions like {$size + 4} from the tagsheet
-			if {[dict exists $tag_exprs $attr]} {
-				dict set new_attrs $attr [expr [dict get $tag_exprs $attr]]
-			} else {
-				dict set new_attrs $attr [get $attr]
-			}
+		foreach attr [dict keys $tag_exprs] {
+			# evaluate expressions like {$size + 4} and {"Sans"} from the tagsheet
+			dict set new_attrs $attr [expr [dict get $tag_exprs $attr]]
 	}	}
 
 	## Set attributes of new tag
@@ -174,16 +171,26 @@ proc ::tagsheet::inlinetag_configure {widget tagdict : tagname = inlinetag PAREN
 		underline -underline no  overstrike -overstrike no  offset -offset yes
 		background -background no  color -foreground no
 	} {
+		if {![dict exists $new_attrs $key]} continue
 		set value [dict get $new_attrs $key]
 		if {$round} {set value [::tcl::mathfunc::round $value]}
 		$widget tag configure $tagname $attr $value
 	}
-	$widget tag configure $tagname -font [
-		::tagsheet::create_fontstring \
-			[dict get $new_attrs font] \
-			[::tcl::mathfunc::round [dict get $new_attrs size]] \
-			[dict get $new_attrs bold] [dict get $new_attrs italic]
-	]
+	# set up a font, if necessary
+	set new_keys [dict keys $new_attrs]
+	set need_font no
+	foreach key {font size bold italic} {
+		if {$key in $new_keys} {set need_font yes}
+	}
+	if {$need_font} {
+		set new_attrs [dict merge $parent_attrs $new_attrs]
+		$widget tag configure $tagname -font [
+			::tagsheet::create_fontstring \
+				[dict get $new_attrs font] \
+				[::tcl::mathfunc::round [dict get $new_attrs size]] \
+				[dict get $new_attrs bold] [dict get $new_attrs italic]
+		]
+	}
 	## bonus for the caller
 	return $tagname
 }
