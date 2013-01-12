@@ -179,9 +179,26 @@ iproc attr_set {attr expr} {
 		# There are no operators defined for strings, except the "parasitic space operator"
 		# which is handled correctly without intervention.
 		# What we need to do is making sure that no list nesting occurs in our string values,
-		# i.e. [font "DejaVu Sans"] should be the same as [font DejaVu Sans].
+		# i.e. [font = "DejaVu Sans"] should be the same as [font = DejaVu Sans].
 		catch { #over-safety, ignore errors if unbalanced braces ever happen to appear
 			set expr [concat {*}$expr]
+		}
+		# Detect function calls cond() and alphablend(), and evaluate them
+		foreach function {cond alphablend} {
+			if {! [string match "${function}(*)" $expr]} continue
+			set expr [translate_$function $expr]
+			# if we can (no parent references), calculate $expr as an expression,
+			if {[string first {$} $expr] == -1} {
+				set expr [expr $expr]
+			# otherwise run a test against sample default values:
+			} else {
+				set size 12; set offset 0
+				set bold 0; set italic 0; set underline 0; set overstrike 0
+				set font "Sans"; set color "#abcdef"; set background "#012345"
+				if {[catch {expr $expr}]} {
+					error "invalid expression syntax in \"$function\" call"
+			}	}
+			break
 		}
 	} Number {
 		# translate Unicode multiplication sign to *
@@ -214,24 +231,7 @@ iproc attr_set {attr expr} {
 	}}
 	## handle "if" clause (2nd part)
 	if {$if_pos != -1} {
-		# translate logical constants and operators to "C" style
-		# (expr does not provide calculations with yes and friends)
-		set cond [string map {
-			" xor " ^  " and " &  " or " |  "not " !
-			" = " ==  ≠ !=  ≥ >=  ≤ <=
-		} $cond]
-		foreach {word value} {yes 1 no 0 on 1 off 0 true 1 false 0} {
-			# The following approach with regsub word-start and word-end marks
-			# avoids e.g. "Caslon" being substituted with "Casl1".
-			set cond [regsub -all "\[\[:<:\]\]$word\[\[:>:\]\]" $cond $value]
-		}
-		# quote anything that looks like a string (meaning of the regular expression:
-		#  Match a sequence of "non-operator-sign" characters whose first is not a digit.
-		#  Additionally, the regexp takes care of omitting leading/trailing spaces.)
-		#  Words that start with " or $ are left unchanged.
-		set cond [regsub -all \
-			{(^|[^$])([[:<:]][^-+*/%~!=<>&|?:^0-9"][^-+*/%~!=<>&|?:^]+[[:>:]])} \
-			$cond {\1"\2"}]
+		set cond [translate_condition $cond]
 		# if we can (no parent references), calculate $cond and abort if it isn't true
 		if {[string first {$} $cond] == -1} {
 			set cond [expr $cond]
@@ -288,6 +288,8 @@ iproc attr_set {attr expr} {
 	} "inlinetag" {
 		# make "bare" string attributes work when $expr is
 		# evaluated using the expr command
+		# 	Note that the $expr has already been tested before,
+		# 	so we don't need to initialize default attributes again.
 		if {[catch {expr $expr}]} {
 			set expr "\"$expr\""
 		}
@@ -299,4 +301,73 @@ iproc attr_set {attr expr} {
 	} "cursor" {
 		dict set ::cursor $attr $expr
 	}}
+}
+
+## Translation helper procedures for attr_set
+## They translate conditions and function calls from "tagsheet syntax"
+## (less quotes, different operators) to Tcl expressions.
+
+## Used for "if" clauses, and in translate_cond (see below).
+iproc translate_condition {cond} {
+	# translate logical operators and constants to "C" style
+	# (expr does not provide calculations with yes and friends)
+	set cond [string map {
+		" xor " ^  " and " &  " or " |  "not " !
+		" = " ==  ≠ !=  ≥ >=  ≤ <=
+	} $cond]
+	foreach {word value} {yes 1 no 0 on 1 off 0 true 1 false 0} {
+		# The following approach with regsub word-start and word-end marks
+		# avoids e.g. "Caslon" being substituted with "Casl1".
+		set cond [regsub -all "\[\[:<:\]\]$word\[\[:>:\]\]" $cond $value]
+	}
+	# quote anything that looks like a string (meaning of the regular expression:
+	#  Match a sequence of "non-operator-sign" characters whose first is not a digit.
+	#  Additionally, the regexp takes care of omitting leading/trailing spaces.)
+	#  Words that start with " or $ are left unchanged.
+	set cond [regsub -all \
+		{(^|[^$])([[:<:]][^-+*/%~!=<>&|?:^0-9"][^-+*/%~!=<>&|?:^]+[[:>:]])} \
+		$cond {\1"\2"}]
+	return $cond
+}
+
+iproc translate_cond {expr} {
+	set arguments [string range $expr 5 end-1]
+	set arguments [split $arguments ","]
+	if {[llength $arguments]&1} {
+		set arguments [linsert $arguments end-1 true]
+	}
+	set expr "cond("
+	foreach {condition value} $arguments {
+		set condition [translate_condition [string trim $condition]]
+		
+		set value [string trim $value]
+		set startq_missing [expr {[string index $value 0]!="\""}]
+		set endq_missing [expr {[string index $value end]!="\""}]
+		if {$startq_missing && $endq_missing} {
+			set value "\"$value\""
+		} elseif {$startq_missing ^ $endq_missing} {
+			error "unbalanced quotes in cond() body"
+		}
+		
+		if {$expr!="cond("} {append expr ", "}
+		append expr "$condition, $value"
+	}
+	append expr ")"
+	return $expr
+}
+
+iproc translate_alphablend {expr} {
+	set arguments [string range $expr 11 end-1]
+	set arguments [split $arguments ","]
+	foreach i {0 1} {
+		set argument [string trim [lindex $arguments $i]]
+		set startq_missing [expr {[string index $argument 0]!="\""}]
+		set endq_missing [expr {[string index $argument end]!="\""}]
+		if {$startq_missing && $endq_missing} {
+			lset arguments $i "\"$argument\""
+		} elseif {$startq_missing ^ $endq_missing} {
+			error "unbalanced quotes in alphablend() body"
+	}	}
+	set expr "alphablend([lindex $arguments 0], [lindex $arguments 1], [lindex $arguments 2])"
+	return $expr
 }

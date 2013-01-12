@@ -1,0 +1,9 @@
+default {
+	background = black
+}
+inlinetag a1 A1 {
+	background = alphablend(default.background,#fff,0.5)
+}
+inlinetag a2 A2 {
+	background = alphablend(parent.background,#fff,0.5)
+}

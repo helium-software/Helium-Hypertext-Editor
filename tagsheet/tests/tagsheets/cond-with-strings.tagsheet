@@ -1,0 +1,17 @@
+default {
+	# Try setting this to Serif
+	font = Sans
+}
+inlinetag a1 A1 {
+	font = Fancy default.font
+}
+inlinetag a2 A2 {
+	font = cond( \
+		default.font = Sans,  Fancy Serif, \
+		default.font = Serif, Fancy Sans )
+}
+inlinetag a3 A3 {
+	font = cond(parent.font==Sans,Fancy Serif, \
+                    parent.font==Serif,Fancy Sans, \
+	            parent.font)
+}
