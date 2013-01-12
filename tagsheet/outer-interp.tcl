@@ -195,9 +195,12 @@ iproc attr_set {attr expr} {
 				set size 12; set offset 0
 				set bold 0; set italic 0; set underline 0; set overstrike 0
 				set font "Sans"; set color "#abcdef"; set background "#012345"
-				if {[catch {expr $expr}]} {
-					error "invalid expression syntax in \"$function\" call"
-			}	}
+				if {[catch {expr $expr} result]} {
+					if {[string match {can't parse color "*"} $result]} {
+						error $result
+					} else {
+						error "invalid expression syntax in \"$function\" call"
+			}	}	}
 			break
 		}
 	} Number {

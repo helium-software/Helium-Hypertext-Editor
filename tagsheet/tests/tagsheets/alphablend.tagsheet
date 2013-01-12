@@ -1,6 +1,7 @@
 default {
 	background = black
 }
+# Try replacing "#fff" with "bittersweet"
 inlinetag a1 A1 {
 	background = alphablend(default.background,#fff,0.5)
 }
