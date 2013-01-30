@@ -34,7 +34,7 @@ proc ::tagsheet::init {} {
 	interp create -safe ::tagsheet::inner-interp
 	# Hide unnecessary commands
 	foreach command {after chan close eof fblocked fcopy fileevent flush \
-	                     gets interp puts read rename seek trace update vwait} {
+	                     gets interp puts read seek trace update vwait} {
 		::tagsheet::outer-interp hide $command
 		::tagsheet::inner-interp hide $command
 	}
@@ -65,10 +65,10 @@ proc ::tagsheet::init {} {
 	
 	## Ability for the outer interpreter to evaluate code in the inner one:
 	interp alias  ::tagsheet::outer-interp inner-eval      ::tagsheet::inner-interp eval
-	## link attr_set from inner to outer interpreter:
-	interp alias  ::tagsheet::inner-interp outer-attr_set  ::tagsheet::outer-interp attr_set
-	## link attr_gettype from outer to inner interpreter:
-	interp alias ::tagsheet::outer-interp attr_gettype  ::tagsheet::inner-interp attr_gettype
+	## link attr_set and attr_gettype from outer to inner interpreter:
+	foreach command {attr_set attr_gettype} {
+		interp alias  ::tagsheet::inner-interp outer-$command  ::tagsheet::outer-interp $command
+	}
 	# make cond() and alphablend() known to the outer interpreter
 	::tagsheet::outer-interp alias  ::tcl::mathfunc::cond  ::tcl::mathfunc::cond
 	::tagsheet::outer-interp alias  ::tcl::mathfunc::alphablend  ::tcl::mathfunc::alphablend

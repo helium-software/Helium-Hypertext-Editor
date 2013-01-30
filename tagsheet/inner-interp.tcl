@@ -64,44 +64,14 @@ iproc attr_setop {attr op expr} {
 	set op [string index $op 0]  ;# discard trailing '=' sign
 	attr_set $attr "$ref.$attr $op ($expr)"
 }
-# implement "attr = expr" (all cases like "toggle" and "+=" call this)
+
+## Connection to outer interpreter
+
+# implements "attr = expr" (all cases like "toggle" and "+=" call this)
 iproc attr_set {attr expr} {
 	outer-attr_set $attr $expr
 }
-
-# get type of an attribute
+# gets type of an attribute
 iproc attr_gettype {attr} {
-	if {$::MODE == "padding"} {
-		switch $attr {
-			x - y	{return Number}
-			default	{error "unknown attribute \"$attr\": must be x or y"}
-	}	}
-	if {$::MODE == "selection"} {
-		switch $attr {
-			color	{return String}
-			alpha	{return Number}
-			default	{error "unknown attribute \"$attr\": must be color, or alpha"}
-	}	}
-	if {$::MODE == "cursor"} {
-		switch $attr {
-			color	{return String}
-			width - ontime - offtime	{return Number}
-			default	{error "unknown attribute \"$attr\": must be color, width, ontime, or offtime"}
-	}	}
-	switch $attr {
-		font - color  - background             {return String}
-		size - offset                          {return Number}
-		bold - italic - underline - overstrike {return Flag}
-
-		leftmargin - leftmargin1 - rightmargin - topskip - bottomskip - lineskip -
-		bulletdistance
-		 { if {$::MODE != "inlinetag"} {return Number} else {
-			error "attribute \"$attr\" is not allowed in inlinetag definitions"
-		 } }
-		align - bullet - bulletcolor
-		 { if {$::MODE != "inlinetag"} {return String} else {
-			error "attribute \"$attr\" is not allowed in inlinetag definitions"
-		 } }
-	}
-	error "unknown attribute \"$attr\""
+	outer-attr_gettype $attr
 }

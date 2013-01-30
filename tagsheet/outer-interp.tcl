@@ -94,30 +94,54 @@ iproc listindents {args} {
 	}
 	set ::listindents $result
 }
-iproc padding {attribdefs} {
-	# body is very analogous to 'default' procedure
-	set ::context padding
-	set ::name padding
+# The rest of the user commands, which have very similar syntax,
+# is implemented with this meta-programming:
+# Argument syntax:
+#   command name -attributes ?names type? ?names type? ...
+iproc command {name -attributes args} {
+	# collect the attribute names (without type info) into $all_names
+	foreach {names type} $args {
+		lappend all_attrs {*}$names
+	}
+	# define the user command procedure
+	iproc $name {attribdefs} "
+		set ::context Other
+		set ::name $name
+		
+		inner-eval {set ::MODE Other}
+		inner-eval \[attribdef_subst \$attribdefs\]
+	"
+	
+	# define the attr_gettype subprocedure
+	
+	# Example: [command cursor -attributes color String {width ontime offtime} Number] results in
+	# 	iproc attr_gettype_cursor {attr} {
+	#		switch $attr {
+	#			color	{return String}
+	#			width - ontime - offtime	{return Number}
+	#			default	{error "unknown attribute \"$attr\": must be color, width, ontime, or offtime"}
+	#	}	}
+	
+	append body "switch \$attr \{\n"
+	foreach {names type} $args {
+		append body "	[join $names " - "]	\{return $type\}\n"
+	}
+	append body "	default \{"
+		# error message
+		append body {error "unknown attribute \"$attr\": must be }
+		append body [join [lrange $all_attrs 0 end-1] ", "]
+		if {[llength $all_attrs]>1} {append body ", or "}
+		append body [lindex $all_attrs end]
+	append body "\}\n\}"
+	
+	iproc attr_gettype_$name {attr} $body
+} 
+ 
+command padding -attributes {x y} Number
+command selection -attributes color String alpha Number
+command cursor -attributes color String {width ontime offtime} Number
+rename command "" ;# delete the "command" procedure
 
-	inner-eval {set ::MODE padding}
-	inner-eval [attribdef_subst $attribdefs]
-}
-iproc selection {attribdefs} {
-	# body is very analogous to 'default' procedure
-	set ::context selection
-	set ::name selection
-
-	inner-eval {set ::MODE selection}
-	inner-eval [attribdef_subst $attribdefs]
-}
-iproc cursor {attribdefs} {
-	# body is very analogous to 'default' procedure
-	set ::context cursor
-	set ::name cursor
-
-	inner-eval {set ::MODE cursor}
-	inner-eval [attribdef_subst $attribdefs]
-}
 
 ## Helper for tagsheet user commands
 
@@ -130,7 +154,33 @@ iproc attribdef_subst {attribdefs} {
 	return $attribdefs
 }
 
+## Gets type of an attribute
+## (Also used by inner interpreter)
+
+iproc attr_gettype {attr} {
+	if {$::context == "Other"} {
+		return [attr_gettype_$::name $attr]
+	}
+	switch $attr {
+		font - color  - background             {return String}
+		size - offset                          {return Number}
+		bold - italic - underline - overstrike {return Flag}
+
+		leftmargin - leftmargin1 - rightmargin - topskip - bottomskip - lineskip -
+		bulletdistance
+		 { if {$::context != "inlinetag"} {return Number} else {
+			error "attribute \"$attr\" is not allowed in inlinetag definitions"
+		 } }
+		align - bullet - bulletcolor
+		 { if {$::context != "inlinetag"} {return String} else {
+			error "attribute \"$attr\" is not allowed in inlinetag definitions"
+		 } }
+	}
+	error "unknown attribute \"$attr\""
+}
+
 ## Logic for setting attributes
+## (Used by inner interpreter)
 
 iproc attr_set {attr expr} {
 	## check if attr is valid in this context
@@ -151,21 +201,12 @@ iproc attr_set {attr expr} {
 		# substitute "parent.attr" and "attr"  (in the same step, since
 		#  "parent.attr" is replaced with something that still contains "attr")
 		set expr [string map [dict merge $::parent_refs [dict get $::inlinetags $::name]] $expr]
-	} "padding" {
+	} "Other" {
+		# this handles all remaining commands, e.g. cursor, padding, ...
 		# substitude "linetype.attr"
 		set expr [string map $::dotattributes $expr]
-		# substitute x and y
-		set expr [string map $::padding $expr]
-	} "selection" {
-		# substitude "linetype.attr"
-		set expr [string map $::dotattributes $expr]
-		# substitute color and alpha
-		set expr [string map $::selection $expr]
-	} "cursor" {
-		# substitude "linetype.attr"
-		set expr [string map $::dotattributes $expr]
-		# substitute color, width, ontime, offtime
-		set expr [string map $::cursor $expr]
+		# substitute attributes like color, ontime, ... from e.g. $::cursor
+		set expr [string map [set ::$::name] $expr]
 	}}
 	## handle "if" clause (1st part: split $expr)
 	set if_pos [string first " if " $expr]
@@ -297,12 +338,9 @@ iproc attr_set {attr expr} {
 			set expr "\"$expr\""
 		}
 		dict set ::inlinetags $::name $attr $expr
-	} "padding" {
-		dict set ::padding $attr $expr
-	} "selection" {
-		dict set ::selection $attr $expr
-	} "cursor" {
-		dict set ::cursor $attr $expr
+	} "Other" {
+		# set attribute in e.g. ::cursor
+		dict set ::$::name $attr $expr
 	}}
 }
 
