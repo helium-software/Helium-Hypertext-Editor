@@ -1,0 +1,4 @@
+inlinetag test "Test condition handling" {
+	font = Sans Serif if parent.font = Mono Space
+	font = Mono Space if parent.font = Sans Serif
+}

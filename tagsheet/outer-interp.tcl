@@ -135,8 +135,8 @@ iproc command {name -attributes args} {
 	append body "\}\n\}"
 	
 	iproc attr_gettype_$name {attr} $body
-} 
- 
+}
+
 command padding -attributes {x y} Number
 command selection -attributes color String alpha Number
 command cursor -attributes color String {width ontime offtime} Number
@@ -179,8 +179,10 @@ iproc attr_gettype {attr} {
 	error "unknown attribute \"$attr\""
 }
 
+#####################################################################
+
 ## Logic for setting attributes
-## (Used by inner interpreter)
+## (Only called from inner interpreter)
 
 iproc attr_set {attr expr} {
 	## check if attr is valid in this context
@@ -199,7 +201,7 @@ iproc attr_set {attr expr} {
 		# substitute "linetype.attr"
 		set expr [string map $::dotattributes $expr]
 		# substitute "parent.attr" and "attr"  (in the same step, since
-		#  "parent.attr" is replaced with something that still contains "attr")
+		#  "parent.attr" is replaced with "$attr" which still contains "attr")
 		set expr [string map [dict merge $::parent_refs [dict get $::inlinetags $::name]] $expr]
 	} "Other" {
 		# this handles all remaining commands, e.g. cursor, padding, ...
@@ -215,6 +217,7 @@ iproc attr_set {attr expr} {
 		set expr [string range $expr 0    $if_pos-1]
 	}
 	## calculate the resulting attribute, depending on its type
+	## (the variable "expr" is transformed and written back to itself)
 	switch $type {
 	String {
 		# There are no operators defined for strings, except the "parasitic space operator"
@@ -343,6 +346,7 @@ iproc attr_set {attr expr} {
 		dict set ::$::name $attr $expr
 	}}
 }
+
 
 ## Translation helper procedures for attr_set
 ## They translate conditions and function calls from "tagsheet syntax"

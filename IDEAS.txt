@@ -1,0 +1,17 @@
+alphablend() als Wert in cond() unterstützen
+	--> outer-interp.tcl :: translate_cond
+
+case() als Shorthand für cond():
+	case(expr,case1,value1,case2,value2)  == cond(expr=case1,value1,expr=case2,value2)
+	case(expr,case1,value1,case2,value2,valueElse) == cond(expr=case1,value1,expr=case2,value2,valueElse)
+
+cond, case und alphablend dokumentieren
+
+#sel-Tags für inlinetag genererieren (in tagsheet/textwidget.tcl)
+
+
+Listenauszeichnung (bullet, bulletcolor, bulletdistance) als zusätzliche Tag-Ebene einführen?
+
+
+
+ttk_toplevel etc. mit [option] ggf. ersetzen
