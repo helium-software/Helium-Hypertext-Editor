@@ -375,25 +375,21 @@ iproc translate_condition {cond} {
 	return $cond
 }
 
+## The following two procedures handle function calls for String attributes only,
+## other attributes are processed with [expr] in attr_set.
+
 iproc translate_cond {expr} {
 	set arguments [string range $expr 5 end-1]
-	set arguments [split $arguments ","]
+	set arguments [split_arguments $arguments]
 	if {[llength $arguments]&1} {
 		set arguments [linsert $arguments end-1 true]
 	}
 	set expr "cond("
 	foreach {condition value} $arguments {
 		set condition [translate_condition [string trim $condition]]
-		
-		set value [string trim $value]
-		set startq_missing [expr {[string index $value 0]!="\""}]
-		set endq_missing [expr {[string index $value end]!="\""}]
-		if {$startq_missing && $endq_missing} {
-			set value "\"$value\""
-		} elseif {$startq_missing ^ $endq_missing} {
-			error "unbalanced quotes in cond() body"
-		}
-		
+		set value [selectively_quote $value]
+		set value [translate_subcalls $value]
+
 		if {$expr!="cond("} {append expr ", "}
 		append expr "$condition, $value"
 	}
@@ -405,14 +401,62 @@ iproc translate_alphablend {expr} {
 	set arguments [string range $expr 11 end-1]
 	set arguments [split $arguments ","]
 	foreach i {0 1} {
-		set argument [string trim [lindex $arguments $i]]
-		set startq_missing [expr {[string index $argument 0]!="\""}]
-		set endq_missing [expr {[string index $argument end]!="\""}]
-		if {$startq_missing && $endq_missing} {
-			lset arguments $i "\"$argument\""
-		} elseif {$startq_missing ^ $endq_missing} {
-			error "unbalanced quotes in alphablend() body"
-	}	}
+		lset arguments $i [selectively_quote [lindex $arguments $i]]
+	}
 	set expr "alphablend([lindex $arguments 0], [lindex $arguments 1], [lindex $arguments 2])"
+	return $expr
+}
+
+## Helpers for translate_cond / translate_alphablend :
+
+# Splits expr-style argument lists in parts, correctly regarding things like
+# nested function calls, and quoted strings containing commas.
+
+iproc split_arguments {arguments} {
+	set arguments_split [split $arguments ","]
+	# From "a==b, alphablend(#ccc,#ddd,0.4)", we would now have a list of
+	# "a==b", "alphablend(#ccc", "#ddd", and "0.4)".
+	set arguments ""; set argument ""
+	foreach argpart $arguments_split {
+		if {$argument!=""} {append argument ,}
+		append argument $argpart
+		# if $argument's braces and quotes are balanced,
+		# empty $argument into $arguments
+		if {[regexp -all "\\(" $argument] == [regexp -all "\\)" $argument] &&
+		   [regexp -all "{" $argument] == [regexp -all "}" $argument] &&
+		   (1 & [regexp -all "\"" $argument]) == 0} \
+		{
+			lappend arguments $argument
+			set argument ""
+		}
+	}
+	return $arguments
+}
+
+# Correctly quotes a string value, if it consists of multiple words.
+# Things that look like a function call are not quoted, i.e.
+# <alphanumeric identifier><opening brace><anything><closing brace>.
+
+iproc selectively_quote {value} {
+	set value [string trim $value]
+	# no quoting of single-words, except color names (#abcdef)
+	if {[string first " " $value] ni [list " " "#"]} {return $value}
+	# no quoting of function calls
+	if {[regexp {^[A-z0-9_]*\(.*\)$} $value]} {return $value}
+	# no quoting if already quoted
+	if {[string index $value 0]=="\"" && [string index $value end]=="\""} {return $value}
+	# otherwise quote it
+	return "\"$value\""
+}
+
+# Checks if a string value is a nested function call, recursively calls
+# translate_... if so.
+
+iproc translate_subcalls {expr} {
+	foreach function {cond alphablend} {
+		if {! [string match "${function}(*)" $expr]} continue
+		return [translate_$function $expr]
+	}
+	# return unchanged, if no function pattern matched
 	return $expr
 }

@@ -1,5 +1,5 @@
 alphablend() als Wert in cond() unterstützen
-	--> outer-interp.tcl :: translate_cond
+	--> outer-interp.tcl :: translate_cond  --> OK, noch zu testen
 
 case() als Shorthand für cond():
 	case(expr,case1,value1,case2,value2)  == cond(expr=case1,value1,expr=case2,value2)

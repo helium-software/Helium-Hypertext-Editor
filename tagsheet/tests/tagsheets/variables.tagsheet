@@ -1,0 +1,5 @@
+set favourite_color green
+
+default {
+	color = $favourite_color
+}
