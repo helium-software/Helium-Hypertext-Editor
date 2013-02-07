@@ -1,0 +1,24 @@
+default {
+	background = black
+	bold = on
+}
+inlinetag alphablend-cond "cond inside alphablend" {
+	background = alphablend(default.background,cond(parent.bold,#fff,#eee),0.5)
+}
+inlinetag cond-alphablend "alphablend inside cond" {
+	background = cond(parent.bold, alphablend(parent.background,#fff,0.5), blue)
+}
+inlinetag happy-stacking "Happy function nesting" {
+	background = cond(parent.bold, alphablend(parent.background,cond(#fff),0.5), blue)
+}
+
+
+linetype alphablend-cond "cond inside alphablend" {
+	background = alphablend(default.background,cond(default.bold,#fff,#eee),0.5)
+}
+linetype cond-alphablend "alphablend inside cond" {
+	background = cond(default.bold, alphablend(default.background,#fff,0.5), blue)
+}
+linetype happy-stacking "Happy function nesting" {
+	background = cond(default.bold, alphablend(default.background,cond(#fff),0.5), blue)
+}

@@ -399,11 +399,14 @@ iproc translate_cond {expr} {
 
 iproc translate_alphablend {expr} {
 	set arguments [string range $expr 11 end-1]
-	set arguments [split $arguments ","]
-	foreach i {0 1} {
-		lset arguments $i [selectively_quote [lindex $arguments $i]]
+	set arguments [split_arguments $arguments]
+	foreach i {0 1 2} {
+		set argument [lindex $arguments $i]
+		set argument  [selectively_quote $argument]
+		set argument [translate_subcalls $argument]
+		lset arguments $i $argument
 	}
-	set expr "alphablend([lindex $arguments 0], [lindex $arguments 1], [lindex $arguments 2])"
+	set expr "alphablend([join $arguments {, }])"
 	return $expr
 }
 
@@ -439,8 +442,8 @@ iproc split_arguments {arguments} {
 
 iproc selectively_quote {value} {
 	set value [string trim $value]
-	# no quoting of single-words, except color names (#abcdef)
-	if {[string first " " $value] ni [list " " "#"]} {return $value}
+	# no quoting of numerals
+	if {[string is double $value]} {return $value}
 	# no quoting of function calls
 	if {[regexp {^[A-z0-9_]*\(.*\)$} $value]} {return $value}
 	# no quoting if already quoted
