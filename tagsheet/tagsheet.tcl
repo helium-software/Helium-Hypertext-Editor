@@ -69,9 +69,10 @@ proc ::tagsheet::init {} {
 	foreach command {attr_set attr_gettype} {
 		interp alias  ::tagsheet::inner-interp outer-$command  ::tagsheet::outer-interp $command
 	}
-	# make cond() and alphablend() known to the outer interpreter
-	::tagsheet::outer-interp alias  ::tcl::mathfunc::cond  ::tcl::mathfunc::cond
-	::tagsheet::outer-interp alias  ::tcl::mathfunc::alphablend  ::tcl::mathfunc::alphablend
+	# make cond(), select() and alphablend() known to the outer interpreter
+	foreach func {cond select alphablend} {
+	::tagsheet::outer-interp alias ::tcl::mathfunc::$func ::tcl::mathfunc::$func
+	}
 
 	## Set up the outer interpreter's data structures (default settings etc.):
 	::tagsheet::outer-interp eval reset

@@ -1,14 +1,20 @@
-case() als Shorthand für cond():
-	case(expr,case1,value1,case2,value2)  == cond(expr=case1,value1,expr=case2,value2)
-	case(expr,case1,value1,case2,value2,valueElse) == cond(expr=case1,value1,expr=case2,value2,valueElse)
+case() hat sich beim Testschreiben als Verwirrung herausgestellt, ich schrieb oft case, wenn ich cond meinte.
+Ausserdem funktioniert es beim AE-Ad-Beispiel auch anders, analog zu If.
 
-cond, case und alphablend dokumentieren
+		--> case() umbenannt zu select() !!!
+
+select() als Shorthand für cond():
+	select(expr,case1,value1,case2,value2)  == cond(expr=case1,value1,expr=case2,value2)
+	select(expr,case1,value1,case2,value2,valueElse) == cond(expr=case1,value1,expr=case2,value2,valueElse)
+
+cond, select und alphablend dokumentieren
 
 #sel-Tags für inlinetag genererieren (in tagsheet/textwidget.tcl)
 
 
 Listenauszeichnung (bullet, bulletcolor, bulletdistance) als zusätzliche Tag-Ebene einführen?
 
-
+		--> neuer Befehl  bullettype ol "Geordnete Liste" { bullet ; (bullet)color ; bulletdistance ; (bullet)size ; offset }
+		--> bullet*-Eigenschaften aus linetype / default entfernen.
 
 ttk_toplevel etc. mit [option] ggf. ersetzen

@@ -1,0 +1,18 @@
+default {
+	# Try setting to different colors
+	background = #fff
+}
+
+linetype cycler "Cycle through background colors" {
+	background = select(default.background,#fff,#ccc,#ccc,#aaa,#aaa,#fff)
+}
+
+inlinetag cycler "Cycle through foreground colors" {
+	# Try removing the last ",  dummy".
+	# Explanation: The expression is tested against sample values, where
+	# parent.color happens to be black.
+	color = select(parent.color, \
+		blue, alphablend(blue,orange,0.5), \
+		alphablend(blue,orange,0.5), orange, \
+		orange, blue,  dummy)
+}

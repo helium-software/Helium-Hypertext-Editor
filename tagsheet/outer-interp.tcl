@@ -227,8 +227,8 @@ iproc attr_set {attr expr} {
 		catch { #over-safety, ignore errors if unbalanced braces ever happen to appear
 			set expr [concat {*}$expr]
 		}
-		# Detect function calls cond() and alphablend(), and evaluate them
-		foreach function {cond alphablend} {
+		# Detect function calls cond(), select() and alphablend(), and evaluate them
+		foreach function {cond select alphablend} {
 			if {! [string match "${function}(*)" $expr]} continue
 			set expr [translate_$function $expr]
 			# if we can (no parent references), calculate $expr as an expression,
@@ -242,6 +242,8 @@ iproc attr_set {attr expr} {
 				if {[catch {expr $expr} result]} {
 					if {[string match {can't parse color "*"} $result]} {
 						error $result
+					} elseif {[string match {no * matched} $result]} {
+						error "error in \"$function\" call: $result"
 					} else {
 						error "invalid expression syntax in \"$function\" call"
 			}	}	}
@@ -375,7 +377,7 @@ iproc translate_condition {cond} {
 	return $cond
 }
 
-## The following two procedures handle function calls for String attributes only,
+## The following three procedures handle function calls for String attributes only,
 ## other attributes are processed with [expr] in attr_set.
 
 iproc translate_cond {expr} {
@@ -397,20 +399,19 @@ iproc translate_cond {expr} {
 	return $expr
 }
 
-iproc translate_alphablend {expr} {
-	set arguments [string range $expr 11 end-1]
-	set arguments [split_arguments $arguments]
-	foreach i {0 1 2} {
-		set argument [lindex $arguments $i]
-		set argument  [selectively_quote $argument]
-		set argument [translate_subcalls $argument]
-		lset arguments $i $argument
-	}
-	set expr "alphablend([join $arguments {, }])"
-	return $expr
+iproc translate_select {expr} {
+	set arguments [string range $expr 7 end-1]
+	set arguments [process_arguments $arguments]
+	return "select([join $arguments {, }])"
 }
 
-## Helpers for translate_cond / translate_alphablend :
+iproc translate_alphablend {expr} {
+	set arguments [string range $expr 11 end-1]
+	set arguments [process_arguments $arguments]
+	return "alphablend([join $arguments {, }])"
+}
+
+## Helpers for translate_cond / translate_select / translate_alphablend :
 
 # Splits expr-style argument lists in parts, correctly regarding things like
 # nested function calls, and quoted strings containing commas.
@@ -456,10 +457,24 @@ iproc selectively_quote {value} {
 # translate_... if so.
 
 iproc translate_subcalls {expr} {
-	foreach function {cond alphablend} {
+	foreach function {cond select alphablend} {
 		if {! [string match "${function}(*)" $expr]} continue
 		return [translate_$function $expr]
 	}
 	# return unchanged, if no function pattern matched
 	return $expr
+}
+
+# Processes a string of arguments (like "#aaa,#bbb,cond(#ccc)")
+# using all methods from above.
+# Suitable for functions where each argument is treated equally
+# (unlike cond() which has "condition"- and "value"-type arguments)
+
+iproc process_arguments {argstring} {
+	foreach argument [split_arguments $argstring] {
+		set argument  [selectively_quote $argument]
+		set argument [translate_subcalls $argument]
+		lappend arguments $argument
+	}
+	return $arguments
 }
