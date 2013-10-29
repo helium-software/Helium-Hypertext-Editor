@@ -19,6 +19,10 @@ Das Native Datenformat sieht die _Verwendung_ beliebiger Absatz- und Zeichenstil
    * [cursor](#cursor)
    * [reset](#reset)
 * [Attribut-Definitonen](#attribut-definitionen)
+   * [Zuweisungsarten](#zuweisungsarten)
+   * [Referenzen](#referenzen)
+   * [Werte & Operatoren](#werte-operatoren)
+   * [Funktionen](#funktionen)
 
 
 Beispiel
@@ -50,7 +54,7 @@ inlinetag bold "Fettdruck" {
 Aufbau
 ------
 
-Ein Tagsheet ist ein Tcl-Skript, dem spezielle Befehle zur Verfügung stehen (und gewisse gefährliche Befehle nicht). Es besteht aus einer Folge von Stil-Definitionen (Befehl _linetype_ oder _inlinetag_) und Spezial-Statements (<i>listindent</i> etc.); für komplexe Fälle stehen auch Standard-Tcl-Befehle wie _set_ oder _lindex_ zur Verfügung.
+Ein Tagsheet ist ein Tcl-Skript, dem spezielle Befehle zur Verfügung stehen (und gewisse gefährliche Befehle nicht). Es besteht aus einer Folge von Stil-Definitionen (Befehl _linetype_ oder _inlinetag_) und Spezial-Statements (<i>listindents</i> etc.); für komplexe Fälle stehen auch Standard-Tcl-Befehle wie _set_ oder _lindex_ zur Verfügung.
 
 ### inlinetag
 
@@ -154,30 +158,73 @@ Dieser "parasitische" (ursprünglich nicht für die Tagsheet-Sprache gedachte) B
 Attribut-Definitionen
 ---------------------
 
-_Dies ist eine kurze Übersicht. Für Details siehe die [englische Version](README.md#attribute-definitions)._
+Dieser Abschnitt beschreibt die Syntax des Felds _{ Attribut-Definitionen }_, das in den vorherigen Abschnitten genannt wurde.
 
-* In default:
-    * Keine Referenzen, ausser auf vorher definierte andere Attribute (z.B. `italic = yes; bold = italic`)
-* In linetype:
-    * Default-Referenz für += etc. und toggle ist der Default-Stil.
-    * Referenz auf Default-Stil: `aaa = default.bbb`
-    * Referenz auf andere Stile: `aaa = myheading.bbb`
-* In inlinetag:
-    * Default-Referenz für += etc. und toggle ist der Stil des Vorgängers (beinhaltender inlinetag / linetype / default).
-    * Referenz auf Vorgänger: `aaa = parent.bbb`
-    * Keine Referenz auf andere inlinetags erlaubt, da diese Vorgänger-relativ sind.
-    * Referenz auf linetype: `aaa = myheading.bbb`
-    * Referenz auf Default-Stil: `aaa = default.bbb`
-* Allgemein darf nicht auf weiter unten definierte Stile (bzw. Attribute im selben Stil-Block) Bezug genommen werden (sonst könnten Zirkelschlüsse wie `aaa = bbb; bbb = aaa` entstehen). Es ist jedoch ‒ wie in CSS ‒ erlaubt, einen Stil nachträglich mit einem Attributblock zu erweitern. Damit sollten verschiedene Design-Aspekte (Bsp. Positionierung und Farbgebung) besser auseinander gehalten werden können.
+Zwischen den geschweiften Klammern (siehe [Beispiel](#beispiel)) können beliebig viele Attribut-Definitionen angegeben werden, entweder jede auf einer neuen Zeile oder mehrere auf einer Zeile, die dann mit Strichpunkten voneinander getrennt werden müssen.
 
+(Aus Sicht des Programms ist das Feld _{ Attribut-Definitionen }_ ein "Tcl-Skript"-Argument, das innerhalb der Befehle _linetype_ etc. ausgeführt wird. Es ist dasselbe Muster wie z.B. der Anweisungsblock als zweites Argument einer _if_-Abfrage, ausser dass die Attribut-Definitionen als besondere Tcl-Befehle in diesem Feld zur Verfügung stehen.)
+
+### Zuweisungsarten
+
+Jede Attribut-Definition kann einem der folgenden Typen angehören:
+
+* `<Attribut> = <Wert>`<br>
+  Setzt ein Attribut auf einen gegebenen Wert. _\<Wert\>_ kann eine feste Größe sein (siehe Abschnitt [Werte & Operatoren](#werte-operatoren)), oder auch ein **Ausdruck**, der aus festen Größen, Operatoren, Funktionen (siehe [Abschnitt](#funktionen)) und Namen anderer Attribute (siehe Abschnitt [Referenzen](#referenzen)) besteht.
+
+* `<Attribut> += <Wert>`<br>
+  `<Attribut> -= <Wert>`<br>
+  `<Attribut> *= <Wert>`<br>
+  `<Attribut> /= <Wert>` <br>
+  Kurznotation für `<Attribut> = <Referenz> + <Wert>`, `<Attribut> = <Referenz> - <Wert>? etc.<br>
+  In einem _linetype_-Statement bezieht sich _<Referenz>_ auf `default.<Attribut>`.<br>
+  In einem _linetag_-Statement bezieht sich _<Referenz>_ auf `parent.<Attribut>`.<br>
+  In allen anderen Statements ist diese Zuweisungsart nicht erlaubt, da man sich auf nichts beziehen kann.
+
+* `<Attribut> toggle`<br>
+  Setzt ein "ja/nein"-artiges Attribut auf den gegenteiligen Wert. Nur erlaubt in _inlinetag_-Definitionen, wo es dasselbe bedeutet wie `<Attribut> = not parent.<Attribut>` und `<Attribut> = parent.<Attribut> xor 1`.
+
+* `<Zuweisung> if <Bedingung>`<br>
+  Die _<Zuweisung>_, die alle oben beschriebenen Formen annehmen kann, wird nur ausgeführt, falls die _<Bedingung>_ zutrifft. Diese ist ein Ausdruck, der einen **Vergleichsoperator** enthält: `= ==` (gleich), `!= <> ≠` (ungleich), `>` (grösser als), `>= ≥` (grösser oder gleich), `<` (kleiner als), `<= ≤` (kleiner oder gleich).
+
+### Referenzen
+
+| Syntax | Bezug auf | Erlaubt in |
+| ------ | --------- | ---------- |
+| `default.<attr>` | Wert von _\<attr\>_, wie im `default`-Teil definiert | inlinetag, linetype; padding/selection/cursor |
+| `parent.<attr>` | Wert von _\<attr\>_ gerade ausserhalb des betreffenden formatierten Bereichs | inlinetag |
+| `<linetype>.<attr>` | Wert von _\<attr\>_, wie in der Definition von _\<linetype\>_ gesetzt | inlinetag, linetype |
+| `<attr>` | Wert von _\<attr\>_, wie zuvor definiert | inlinetag, linetype, default; padding/selection/cursor |
+
+Alle Referenzen ausser _parent.\<attr\>_ werden in einem einzigen Durchgang ausgewertet, während das Tagsheet in den Interpreten gelesen wird. Das bedeutet, dass jede Referenz auf den betreffenden Attributwert zugreift, wie er durch alle vorigen Attribut-Definitionen gesetzt wurde. Zirkelbezüge wie `a = b; b = a` sind daher unmöglich, denn die erste Zuweisung versucht auf `b` zuzugreifen, welches zu dieser Zeit unbekannt ist (oder sie setzt `a` auf den Defaultwert von `b`, wenn ein solcher existiert). Dies ist typisch **imperative Semantik; Tagsheets sind nicht rein deklarativ.**
+
+Es ist jedoch ‒ wie in CSS ‒ erlaubt, einen Stil nachträglich mit einem Attributblock zu erweitern. Damit sollten verschiedene Design-Aspekte (Bsp. Positionierung und Farbgebung) besser auseinander gehalten werden können.
 ```
-linetype test {
+linetype test "" {
 	aaa = 12
 }
-linetype other {
+linetype other "" {
 	bbb = test.aaa
 }
-linetype test {
+linetype test "" {
 	bbb = aaa
 }
 ```
+### Werte & Operatoren
+
+| Typ                            | Feste Werte         | Operatoren |
+| ------------------------------ | ------------------- | ---------- |
+| **Zahlen**                     | wie `123` or `1.54` | Die Standard-Operatoren `+ - * /` sind vorhanden. Unicode `·` ist erlaubt für die Multiplikation. |
+| **Schalter** ("ja/nein"-Werte) | `yes no on off true false` | Logische Operatoren `and or not xor` |
+| **Zeichenfolgen** (Text)       | `Einzelwort` `"multi word"` `{$trube"Zeichen}` | Ein Leerzeichen zwischen zwei Zeichenfolgen verbindet diese mit einem Leerzeichen. |
+
+Der "Leerzeichen-Operator" für Zeichenfolgen ist konzipiert, um effektiv mehrere Wörter ohne Anführungszeichen hinschreiben zu können, wie in `font = Century Schoolbook L`. Ausserdem ist folgendes Codebeispiel gültig und führt dazu, dass _bbb_ ein _font_-Attribut von "DejaVu Sans Condensed" erhält:
+```
+linetype aaa AAA {
+	font = DejaVu Sans
+}
+linetype bbb BBB {
+	font = aaa.font Condensed
+}
+```
+
+### Funktionen

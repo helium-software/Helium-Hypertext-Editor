@@ -19,8 +19,11 @@ Synopsis
    * [cursor](#cursor)
    * [reset](#reset)
 * [Attribute Definitions](#attribute-definitions)
+   * [Assignment Patterns](#assignment-patterns)
    * [References](#references)
    * [Literal Values; Operators](#literal-values-operators)
+   * [Functions](#functions)
+
 
 Example
 -------
@@ -51,7 +54,7 @@ inlinetag bold "Bold print" {
 Structure
 ---------
 
-A tagsheet is a Tcl script that makes use of some specific commands (while being prohibited from using some other, dangerous ones). It consists of a sequence of style definitions (commands _linetype_, _default_, or _inlinetag_) and special statements (<i>listindent</i> etc.), and — in complex cases — standard Tcl commands like _set_ or _lindex_.
+A tagsheet is a Tcl script that makes use of some specific commands (while being prohibited from using some other, dangerous ones). It consists of a sequence of style definitions (commands _linetype_, _default_, or _inlinetag_) and special statements (<i>listindents</i> etc.), and — in complex cases — standard Tcl commands like _set_ or _lindex_.
 
 ### inlinetag
 
@@ -154,17 +157,18 @@ This "parasitic" (not originally intended to be part of the tagsheet language) c
 Attribute Definitions
 ---------------------
 
-This section describes the syntax of the _{ attribute definitions }_ field that has been mentioned in the previous sections.<br>
-_For a short overview, see the [German version](README-de.md#attribut-definitionen)._
+This section describes the syntax of the _{ attribute definitions }_ field that has been mentioned in the previous sections.
 
 Between the curly braces (see the [Example](#example)), an arbitrary number of attribute definitions can be specified, either each on an individual line, or multiple definitions on one line, separated by semicolons.
 
 (Internally, the _{ attribute definitions }_ field is a "Tcl script" argument that is executed inside the commands like _linetype_ etc. It is exactly the same as e.g. the body of an _if_ condition, except that the attribute definitions are available as custom Tcl commands inside this field.)
 
+### Assignment Patterns
+
 Each attribute definition can be one of the following types:
 
 * `<attribute> = <value>`<br>
-  Sets an attribute to the given literal value (see section [Literal Values & Operators](#literal-values-operators)). _\<value\>_ may also be an **expression** composed of literal values, operators (see [section](#literal-values-operators)) and other attribute names (see section [References](#references)).
+  Sets an attribute to the given literal value (see section [Literal Values & Operators](#literal-values-operators)). _\<value\>_ may also be an **expression** composed of literal values, operators (see [section](#literal-values-operators)), functions (see [section](#functions)) and other attribute names (see section [References](#references)).
 
 * `<attribute> += <value>`<br>
   `<attribute> -= <value>`<br>
@@ -185,12 +189,25 @@ Each attribute definition can be one of the following types:
 
 | Syntax | Refers to | Allowed in |
 | ------ | --------- | ---------- |
-| `default.<attr>` | Value of _\<attr\>_ defined in `default` section | inlinetag, linetype |
+| `default.<attr>` | Value of _\<attr\>_ defined in `default` section | inlinetag, linetype; padding/selection/cursor |
 | `parent.<attr>` | Value of _\<attr\>_ just outside the current tag range | inlinetag |
 | `<linetype>.<attr>` | Value of _\<attr\>_ as set in the definition of _\<linetype\>_ | inlinetag, linetype |
-| `<attr>` | Value of _\<attr\>_ as defined before | default |
+| `<attr>` | Value of _\<attr\>_ as defined before | inlinetag, linetype, default; padding/selection/cursor |
 
-All references except _parent.\<attr\>_ are evaluated in a single pass, while the tagsheet is being read into the interpreter. This means that each reference will access the corresponding attribute value as it has been set by all the preceding attribute definitions.  Circular references like `a=b; b=a` are therefore impossible, since the first statement tries to access `b` which is unknown at this time (or it sets `a` to the default value for `b` if that exists). This is typical **imperative semantics; Tagsheets are not purely declarative.**
+All references except _parent.\<attr\>_ are evaluated in a single pass, while the tagsheet is being read into the interpreter. This means that each reference will access the corresponding attribute value as it has been set by all the preceding attribute definitions.  Circular references like `a = b; b = a` are therefore impossible, since the first statement tries to access `b` which is unknown at this time (or it sets `a` to the default value for `b` if that exists). This is typical **imperative semantics; Tagsheets are not purely declarative.**
+
+It is however allowed ‒ as in CSS ‒ to extend a style later with an additional attribute block. Thus, various design aspects (e.g. spacing and coloring) can be better separated.
+```
+linetype test "" {
+	aaa = 12
+}
+linetype other "" {
+	bbb = test.aaa
+}
+linetype test "" {
+	bbb = aaa
+}
+```
 
 ### Literal Values; Operators
 
@@ -200,7 +217,7 @@ All references except _parent.\<attr\>_ are evaluated in a single pass, while th
 | **Flags** ("yes/no" values) | `yes no on off true false` | Boolean operators `and or not xor` |
 | **Strings** (text values)   | `Singleword` `"multi word"` `{$trange"chars}` | A space between two string values joins them with a space between. |
 
-The "space operator" for strings has been designed to effectively allow writing multi-word values without any quotes, as in `font = Century Schoolbook L`. Additionally, the following code example is valid, resulting _bbb_ having a _font_ attribute of "DejaVu Sans Condensed":
+The "space operator" for strings has been designed to effectively allow writing multi-word values without any quotes, as in `font = Century Schoolbook L`. Additionally, the following code example is valid, resulting in _bbb_ having a _font_ attribute of "DejaVu Sans Condensed":
 ```
 linetype aaa AAA {
 	font = DejaVu Sans
@@ -209,3 +226,5 @@ linetype bbb BBB {
 	font = aaa.font Condensed
 }
 ```
+
+### Functions
