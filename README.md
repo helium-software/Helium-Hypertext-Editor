@@ -1,7 +1,7 @@
-Helium Content Editor
-=====================
+Helium Hypertext Editor
+=======================
 
-[(springe zur deutschen Version)](#helium-content-editor-deutsch)
+[(springe zur deutschen Version)](#helium-hypertext-editor-deutsch)
 
 This is the Content Management System for the upcoming Helium website.
 Unlike typical projects that coined the "CMS" notion, the Helium
@@ -53,8 +53,8 @@ Development Roadmap
 
 -----------------------------------------------------------------------------
 
-Helium Content Editor (deutsch)
-===============================
+Helium-Hypertext-Editor (deutsch)
+=================================
 
 Dies ist die Inhaltsverwaltung für den zukünftigen Helium-Webauftritt.
 Anders als typische Projekte, die den Begriff "CMS" prägten, ist

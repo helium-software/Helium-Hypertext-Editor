@@ -9,3 +9,7 @@ Listenauszeichnung (bullet, bulletcolor, bulletdistance) als zusätzliche Tag-Eb
 		--> bullet*-Eigenschaften aus linetype / default entfernen.
 
 ttk_toplevel etc. mit [option] ggf. ersetzen
+
+
+Tagsheet-Interpreter:
+Mehr "upvar" statt "uplevel set" !
